@@ -154,7 +154,7 @@
             </div>
             <div class="version-card__meta">{{ version.quantidadeFluxos }} fluxos · {{ version.criadoEm.toIso8601String().substring(0, 10) }}</div>
             <p *ngIf="version.notas != null">{{ version.notas }}</p>
-            <button type="button" class="btn btn-outline-success btn-sm mt-3" *ngIf="versaoPodeSerPublicada(version)" (click)="selectedBuilderVersionId = version.id; publicarVersaoAtual()" [disabled]="publishVersionLoading || saveDraftLoading || previewLoading || validationLoading">
+            <button type="button" class="btn btn-outline-success btn-sm mt-3" *ngIf="versaoPodeSerPublicada(version)" (click)="selecionarEPublicarVersao(version.id)" [disabled]="publishVersionLoading || saveDraftLoading || previewLoading || validationLoading">
               {{ publishVersionLoading && selectedBuilderVersionId == version.id ? 'Publicando...' : 'Publicar versão' }}
             </button>
           </article>

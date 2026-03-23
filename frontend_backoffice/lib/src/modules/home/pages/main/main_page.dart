@@ -593,6 +593,11 @@ class MainPage implements OnInit {
     return versao.status == StatusVersaoServico.rascunho;
   }
 
+  Future<void> selecionarEPublicarVersao(String versionId) async {
+    selectedBuilderVersionId = versionId;
+    await publicarVersaoAtual();
+  }
+
   Future<void> _loadCurrentSection() async {
     if (isServicesSection) {
       await loadServices();

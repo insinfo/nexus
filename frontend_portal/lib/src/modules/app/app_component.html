@@ -169,7 +169,7 @@
                           <label class="form-label">Identificador</label>
                           <div class="input-group">
                             <span class="input-group-text"><i class="ph-user"></i></span>
-                            <input #loginIdentificador class="form-control" [value]="loginUsuario.identificador" (input)="loginUsuario.identificador = loginIdentificador.value" placeholder="Email, usuario ou CPF" />
+                            <input #loginIdentificador class="form-control" [value]="loginUsuario.identificador" (input)="loginUsuario.identificador = loginIdentificador.value ?? ''" placeholder="Email, usuario ou CPF" />
                           </div>
                         </div>
 
@@ -177,7 +177,7 @@
                           <label class="form-label">Senha</label>
                           <div class="input-group">
                             <span class="input-group-text"><i class="ph-lock-key"></i></span>
-                            <input #loginSenha class="form-control" type="password" [value]="loginUsuario.senha" (input)="loginUsuario.senha = loginSenha.value" placeholder="Informe sua senha" />
+                            <input #loginSenha class="form-control" type="password" [value]="loginUsuario.senha" (input)="loginUsuario.senha = loginSenha.value ?? ''" placeholder="Informe sua senha" />
                           </div>
                         </div>
 
@@ -201,49 +201,49 @@
                             <label class="form-label">Nome de exibicao</label>
                             <div class="input-group">
                               <span class="input-group-text"><i class="ph-user-circle"></i></span>
-                              <input #cadastroNome class="form-control" [value]="cadastroUsuario.nomeExibicao" (input)="cadastroUsuario.nomeExibicao = cadastroNome.value" placeholder="Como deseja aparecer" />
+                              <input #cadastroNome class="form-control" [value]="cadastroUsuario.nomeExibicao" (input)="cadastroUsuario.nomeExibicao = cadastroNome.value ?? ''" placeholder="Como deseja aparecer" />
                             </div>
                           </div>
                           <div class="col-12 col-md-6">
                             <label class="form-label">Nome de usuario</label>
                             <div class="input-group">
                               <span class="input-group-text"><i class="ph-at"></i></span>
-                              <input #cadastroUsuarioNome class="form-control" [value]="cadastroUsuario.nomeUsuario" (input)="cadastroUsuario.nomeUsuario = cadastroUsuarioNome.value" placeholder="Usuario de acesso" />
+                              <input #cadastroUsuarioNome class="form-control" [value]="cadastroUsuario.nomeUsuario" (input)="cadastroUsuario.nomeUsuario = cadastroUsuarioNome.value ?? ''" placeholder="Usuario de acesso" />
                             </div>
                           </div>
                           <div class="col-12 col-md-6">
                             <label class="form-label">Email</label>
                             <div class="input-group">
                               <span class="input-group-text"><i class="ph-envelope-simple"></i></span>
-                              <input #cadastroEmail class="form-control" type="email" [value]="cadastroUsuario.email" (input)="cadastroUsuario.email = cadastroEmail.value" placeholder="seu@email.gov.br" />
+                              <input #cadastroEmail class="form-control" type="email" [value]="cadastroUsuario.email" (input)="cadastroUsuario.email = cadastroEmail.value ?? ''" placeholder="seu@email.gov.br" />
                             </div>
                           </div>
                           <div class="col-12 col-md-6">
                             <label class="form-label">CPF</label>
                             <div class="input-group">
                               <span class="input-group-text"><i class="ph-identification-card"></i></span>
-                              <input #cadastroCpf class="form-control" [value]="cadastroUsuario.cpf ?? ''" (input)="cadastroUsuario.cpf = cadastroCpf.value" placeholder="000.000.000-00" />
+                              <input #cadastroCpf class="form-control" [value]="cadastroUsuario.cpf ?? ''" (input)="cadastroUsuario.cpf = cadastroCpf.value ?? ''" placeholder="000.000.000-00" />
                             </div>
                           </div>
                           <div class="col-12 col-md-6">
                             <label class="form-label">Telefone</label>
                             <div class="input-group">
                               <span class="input-group-text"><i class="ph-phone"></i></span>
-                              <input #cadastroTelefone class="form-control" [value]="cadastroUsuario.telefone ?? ''" (input)="cadastroUsuario.telefone = cadastroTelefone.value" placeholder="(22) 99999-9999" />
+                              <input #cadastroTelefone class="form-control" [value]="cadastroUsuario.telefone ?? ''" (input)="cadastroUsuario.telefone = cadastroTelefone.value ?? ''" placeholder="(22) 99999-9999" />
                             </div>
                           </div>
                           <div class="col-12 col-md-6">
                             <label class="form-label">Data de nascimento</label>
                             <div class="input-group">
                               <span class="input-group-text"><i class="ph-calendar"></i></span>
-                              <input #cadastroData class="form-control" type="date" [value]="cadastroUsuario.dataNascimento?.toIso8601String().substring(0, 10) ?? ''" (change)="cadastroUsuario.dataNascimento = cadastroData.value.isEmpty ? null : DateTime.parse(cadastroData.value)" />
+                              <input #cadastroData class="form-control" type="date" [value]="cadastroUsuario.dataNascimento?.toIso8601String().substring(0, 10) ?? ''" (change)="alterarDataNascimento(cadastroData.value)" />
                             </div>
                           </div>
                           <div class="col-12">
                             <label class="form-label">Senha</label>
                             <div class="input-group">
                               <span class="input-group-text"><i class="ph-lock-key-open"></i></span>
-                              <input #cadastroSenha class="form-control" type="password" [value]="cadastroUsuario.senha" (input)="cadastroUsuario.senha = cadastroSenha.value" placeholder="Crie uma senha segura" />
+                              <input #cadastroSenha class="form-control" type="password" [value]="cadastroUsuario.senha" (input)="cadastroUsuario.senha = cadastroSenha.value ?? ''" placeholder="Crie uma senha segura" />
                             </div>
                           </div>
                         </div>
@@ -263,7 +263,7 @@
                           <label class="form-label">Email, usuario ou CPF</label>
                           <div class="input-group">
                             <span class="input-group-text"><i class="ph-magnifying-glass"></i></span>
-                            <input #recuperacaoIdentificador class="form-control" [value]="solicitarRedefinicaoSenha.identificador" (input)="solicitarRedefinicaoSenha.identificador = recuperacaoIdentificador.value" placeholder="Identificador da conta" />
+                            <input #recuperacaoIdentificador class="form-control" [value]="solicitarRedefinicaoSenha.identificador" (input)="solicitarRedefinicaoSenha.identificador = recuperacaoIdentificador.value ?? ''" placeholder="Identificador da conta" />
                           </div>
                         </div>
 
@@ -281,7 +281,7 @@
                           <label class="form-label">Token</label>
                           <div class="input-group">
                             <span class="input-group-text"><i class="ph-key"></i></span>
-                            <input #novaSenhaToken class="form-control" [value]="redefinirSenha.token" (input)="redefinirSenha.token = novaSenhaToken.value" placeholder="Cole o token recebido" />
+                            <input #novaSenhaToken class="form-control" [value]="redefinirSenha.token" (input)="redefinirSenha.token = novaSenhaToken.value ?? ''" placeholder="Cole o token recebido" />
                           </div>
                         </div>
 
@@ -289,7 +289,7 @@
                           <label class="form-label">Nova senha</label>
                           <div class="input-group">
                             <span class="input-group-text"><i class="ph-password"></i></span>
-                            <input #novaSenhaValor class="form-control" type="password" [value]="redefinirSenha.novaSenha" (input)="redefinirSenha.novaSenha = novaSenhaValor.value" placeholder="Defina a nova senha" />
+                            <input #novaSenhaValor class="form-control" type="password" [value]="redefinirSenha.novaSenha" (input)="redefinirSenha.novaSenha = novaSenhaValor.value ?? ''" placeholder="Defina a nova senha" />
                           </div>
                         </div>
 
@@ -360,7 +360,7 @@
                     <label for="codigo-protocolo" class="form-label">Numero de protocolo ou codigo publico</label>
                     <div class="input-group mb-3">
                       <span class="input-group-text"><i class="ph-magnifying-glass"></i></span>
-                      <input id="codigo-protocolo" #codigoProtocoloInput class="form-control" [value]="codigoConsultaProtocolo" (input)="atualizarCodigoConsultaProtocolo(codigoProtocoloInput.value)" placeholder="Ex.: PROT-2026-000123" />
+                      <input id="codigo-protocolo" #codigoProtocoloInput class="form-control" [value]="codigoConsultaProtocolo" (input)="atualizarCodigoConsultaProtocolo(codigoProtocoloInput.value ?? '')" placeholder="Ex.: PROT-2026-000123" />
                     </div>
                     <button type="button" class="btn btn-primary" (click)="consultarProtocoloPublico()" [disabled]="consultaProtocoloCarregando">
                       {{ consultaProtocoloCarregando ? 'Consultando...' : 'Consultar protocolo' }}
@@ -547,7 +547,6 @@
 
               <article class="portal-runtime-step" *ngIf="noApresentacaoAtual != null">
                 <h3>{{ noApresentacaoAtual!.rotulo }}</h3>
-                <p *ngIf="noApresentacaoAtual!.descricao != null">{{ noApresentacaoAtual!.descricao }}</p>
                 <div class="portal-runtime-richtext">
                   <p *ngFor="let bloco of blocosApresentacao">{{ conteudoBloco(bloco) }}</p>
                 </div>
@@ -565,21 +564,21 @@
                     <label>{{ pergunta.rotulo }}</label>
                     <small *ngIf="pergunta.descricao != null">{{ pergunta.descricao }}</small>
 
-                    <select #campoSelect class="form-select" *ngIf="perguntaEhSelecao(pergunta)" (change)="atualizarRespostaTexto(pergunta.campo, campoSelect.value)">
+                    <select #campoSelect class="form-select" *ngIf="perguntaEhSelecao(pergunta)" (change)="atualizarRespostaTexto(pergunta.campo, campoSelect.value ?? '')">
                       <option value="">Selecione</option>
                       <option *ngFor="let opcao of pergunta.opcoes" [value]="opcao.valor" [selected]="valorCampoAtual(pergunta.campo) == opcao.valor">
                         {{ opcao.rotulo }}
                       </option>
                     </select>
 
-                    <textarea #campoLongo class="form-control" *ngIf="perguntaEhTextoLongo(pergunta)" (input)="atualizarRespostaTexto(pergunta.campo, campoLongo.value)">{{ valorCampoAtual(pergunta.campo) ?? '' }}</textarea>
+                    <textarea #campoLongo class="form-control" *ngIf="perguntaEhTextoLongo(pergunta)" (input)="atualizarRespostaTexto(pergunta.campo, campoLongo.value ?? '')">{{ valorCampoAtual(pergunta.campo) ?? '' }}</textarea>
 
                     <label class="portal-runtime-checkbox" *ngIf="perguntaEhBooleano(pergunta)">
-                      <input #campoCheck type="checkbox" [checked]="campoMarcado(pergunta.campo)" (change)="atualizarRespostaMarcacao(pergunta.campo, campoCheck.checked)" />
+                      <input #campoCheck type="checkbox" [checked]="campoMarcado(pergunta.campo)" (change)="atualizarRespostaMarcacao(pergunta.campo, campoCheck.checked ?? false)" />
                       Confirmar
                     </label>
 
-                    <input #campoInput class="form-control" *ngIf="!perguntaEhSelecao(pergunta) && !perguntaEhTextoLongo(pergunta) && !perguntaEhBooleano(pergunta)" [type]="tipoInputPergunta(pergunta)" [value]="valorCampoAtual(pergunta.campo) ?? ''" (input)="atualizarRespostaTexto(pergunta.campo, campoInput.value)" />
+                    <input #campoInput class="form-control" *ngIf="!perguntaEhSelecao(pergunta) && !perguntaEhTextoLongo(pergunta) && !perguntaEhBooleano(pergunta)" [type]="tipoInputPergunta(pergunta)" [value]="valorCampoAtual(pergunta.campo) ?? ''" (input)="atualizarRespostaTexto(pergunta.campo, campoInput.value ?? '')" />
                   </div>
                 </div>
 
