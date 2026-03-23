@@ -1,0 +1,196 @@
+<!--datatable_component.html-->
+<div [attr.data-label]="'datatable'" #card class="dataTables_wrapper dt-bootstrap5 no-footer">
+    <div class="datatable-header" [class.p-0]="disableHeaderPadding == true">
+        <div class="dataTables_filter">
+            <label class="flex-wrap" *ngIf="searchInFields != null && searchInFields.isNotEmpty">
+
+                <div class="form-control-feedback form-control-feedback-end me-2">
+                    <input [(ngModel)]="dataTableFilter.searchString" #inputSearchElement
+                        (keypress)="handleSearchInputKeypress($event)" [attr.data-label]="'datatable_input_search'"
+                        type="search" class="form-control data-table-search-field" placeholder="{{searchPlaceholder}}">
+
+                </div>
+                <select #selectSearchField (change)="handleSearchFieldSelectChange($event,selectSearchField.value)"
+                    class="form-select" [attr.data-label]="'datatable_select_search_field'"
+                    style="width: fit-content;max-width: 12.5rem;">
+                    <option *ngFor="let field of searchInFields; let i = index" value="{{i}}"
+                        [selected]="field.selected">
+                        {{field.label}}</option>
+                </select>
+                <button class="btn btn-flat-primary border-transparent btn-icon ms-2" title="Clique para buscar"
+                    type="button" (click)="onSearch()" [attr.data-label]="'datatable_btn_search'">
+                    <i class="ph-magnifying-glass"></i>
+                </button>
+            </label>
+        </div>
+        <div class="dataTables_length d-flex align-items-center">
+
+            <!-- <div class="dropdown me-2">
+                <a title="Exportar para PDF/Excel" class="btn btn-flat-primary border-transparent btn-icon"
+                    [attr.data-bs-toggle]="'dropdown'" aria-expanded="true">
+                    <i class="ph ph-file-arrow-down"></i>
+                </a>
+                <div class="dropdown-menu dropdown-menu-end " [attr.data-popper-placement]="'bottom-end'"
+                    style="position: absolute; inset: 0px 0px auto auto; margin: 0px; transform: translate(0px, 21px);">
+                    <a (click)="exportPdf()" class="dropdown-item cursor-pointer">
+                        <i class="ph-file-pdf me-2"></i>
+                        Exportar para PDF
+                    </a>
+                    <a (click)="exportXlsx()" class="dropdown-item cursor-pointer">
+                        <i class="ph-file-xls me-2"></i>
+                        Exportar para Excel
+                    </a>
+                </div>
+            </div> -->
+
+            <button (click)="changeViewMode()" title="Modo lista ou grade"
+                class="btn btn-flat-primary border-transparent btn-icon me-2 " type="button">
+                <i [class.ph-squares-four]="!gridMode" [class.ph-list-bullets]="gridMode"></i>
+            </button>
+
+            <div class="dropdown me-2">
+                <a class="btn btn-flat-primary border-transparent btn-icon"
+                    title="Clique para exibir ou ocultar uma coluna" [attr.data-bs-toggle]="'dropdown'"
+                    aria-expanded="true">
+                    <i class="ph-eye"></i>
+                </a>
+                <div class="dropdown-menu dropdown-menu-end " [attr.data-popper-placement]="'bottom-end'">
+                    <label *ngFor="let col of settings.colsDefinitions" class="dropdown-item ">
+                        <input (click)="changeVisibilityOfCol(col)" type="checkbox"
+                            class="form-check-input cursor-pointer m-0 me-3" [checked]="col.visibility">
+                        {{col.title}}
+                    </label>
+                </div>
+            </div>
+
+            <select #selectItemsPerPage (change)="changeItemsPerPageHandler(selectItemsPerPage)"
+                name="DataTables_length" class="form-select" style="width: fit-content;max-width: 12.5rem;">
+                <option *ngFor="let ipp of limitPerPageOptions" value="{{ipp}}" [selected]="ipp==dataTableFilter.limit">
+                    {{ipp}}</option>
+            </select>
+
+        </div>
+    </div>
+
+    <div class="datatable-scroll" *ngIf="gridMode == false">
+
+        <table #table class="table datatable-basic dataTable no-footer" [class.table-hover]="disableRowClick==false">
+            <thead>
+                <tr role="row">
+
+                    <th *ngIf="showCheckboxToSelectRow" class="datatable-first-col">
+                        <input *ngIf="!allowSingleSelectionOnly"
+                            class="form-check-input m-0 me-3" [checked]="isSelectAll"
+                            (click)="onSelectAll($event)" type="checkbox" autocomplete="off" tabindex="-1">
+                    </th>
+                    <th *ngFor="let colDef of settings.colsDefinitions" [class.sorting]="colDef.enableSorting"
+                        [class.hide]="!colDef.visibility" (click)="onOrder(colDef)"
+                        [attr.data-key]="colDef.key" [attr.data-sort-key]="colDef.sortingBy ?? ''"
+                        tabindex="0">{{colDef.title}}
+
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- [class.odd]="i % 2 == 0" [class.even]="i % 2 != 0" -->
+                <tr [class.cursor-pointer]="disableRowClick==false && row.type != DatatableRowType.groupTitle"
+                    *ngFor="let row of rows; let idxR = index" (click)="rowClickHandler(row)"
+                    [attr.data-index]="row.index.toString()"
+                    [class.datatable-group-title-row]="row.type == DatatableRowType.groupTitle"
+                    [attr.data-label]="'datatable_row_'+ idxR.toString()" [attr.style]="row.styleCss">
+
+                    <td *ngIf="showCheckboxToSelectRow" class="datatable-first-col" (click)="$event.stopPropagation()">
+                        <input class="cursor-pointer  form-check-input m-0 me-3" #selectcheckbox
+                            (click)="onSelect($event, row)" type="checkbox" [checked]="row.selected" autocomplete="off"
+                            tabindex="-1" [attr.data-label]="'datatable_col_checkbox'">
+                    </td>
+
+                    <td *ngFor="let column of row.columns; let idxC = index" class="sorting_1"
+                        [class.hide]="!column.visibility "
+                        [class.datatable-group-title-cell]="row.type == DatatableRowType.groupTitle"
+                        [safeInnerHtml]="column.value"
+                        [safeAppendHtml]="column.htmlElement" [attr.colspan]="column.colspan.toString()"
+                        [attr.style]="column.styleCss.toString()" [attr.data-label]="'datatable_col_'+ idxC.toString()">
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+
+    <div class="grid-container" *ngIf="gridMode == true">
+        <div class="grid-layout">
+
+            <div *ngIf="rows.isEmpty" class="w-100 d-flex flex-column align-items-center ">
+                <img src="assets/images/no-search-results.svg" class=" rounded mb-3" height="100px"
+                    style="width: fit-content;">
+                <div class=" text-muted">Lista vazia</div>
+            </div>
+
+            <div class="grid-item" [class.content-divider]="row.type == DatatableRowType.groupTitle"
+                [class.card]="row.type == DatatableRowType.normal" *ngFor="let row of rows; let i = index"
+                [attr.style]="row.styleCss">
+
+                <span *ngIf="row.type == DatatableRowType.groupTitle" class="text-center text-muted p-2 ">
+                    <span *ngFor="let column of row.columns" [safeInnerHtml]="column.value"
+                        [safeAppendHtml]="column.htmlElement">
+                    </span>
+                </span>
+
+                <div class="card-body" (click)="rowClickHandler(row)" *ngIf="row.columnsCardBody.isNotEmpty"
+                    [class.cursor-pointer]="disableRowClick==false">
+                    <div *ngFor="let column of row.columnsCardBody"
+                        [class.hide]="column.visibility==false && column.visibilityOnCard==false"
+                        [attr.style]="column.styleCss.toString()">
+
+                        <span class="fs-sm text-muted" *ngIf="column.showTitleOnCard">
+                            {{column.title}}<span *ngIf="column.title.isNotEmpty">:</span>
+                        </span>
+                        <h6 class="fw-normal" [safeInnerHtml]="column.value" [safeAppendHtml]="column.htmlElement">
+                        </h6>
+
+                    </div>
+                </div>
+                <div class="card-footer" *ngIf="row.columnsCardFooter.isNotEmpty">
+                    <div *ngFor="let column of row.columnsCardFooter"
+                        [class.hide]="column.visibility==false && column.visibilityOnCard==false"
+                        [attr.style]="column.styleCss.toString()">
+
+                        <span class="fs-sm text-muted" *ngIf="column.showTitleOnCard">
+                            {{column.title}}<span *ngIf="column.title.isNotEmpty">:</span>
+                        </span>
+                        <div *ngIf="column.htmlElement != null" [safeAppendHtml]="column.htmlElement"> </div>
+                        <h6 *ngIf="column.htmlElement == null" class="fw-normal mb-2" [safeInnerHtml]="column.value">
+                        </h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="datatable-footer">
+        <div class="dataTables_info" role="status" aria-live="polite">
+            Mostrando de {{dataTableFilter.offset}} a {{getCurrentTotalItems}} de
+            {{totalRecords}} entradas, {{numPages}} paginas
+        </div>
+        <div class="dataTables_paginate paging_simple_numbers" style="overflow-x:auto;">
+            <ul class="pagination pagination-flat">
+                <li (click)="irParaPrimeiraPagina()" *ngIf="getCurrentPage > 2" class="page-item">
+                    <a title="ir para a primeira página" class="cursor-pointer page-link rounded" tabindex="0">
+                        <i class="ph ph-arrow-line-left"></i>
+                    </a>
+                </li>
+                <li class="page-item" *ngFor="let pagPrevBtn of paginationItems" [class]="pagPrevBtn.cssClass">
+                    <a class="cursor-pointer page-link rounded" (click)="pagPrevBtn.action()"
+                        tabindex="0">{{pagPrevBtn.label}}
+                    </a>
+                </li>
+                <li (click)="irParaUltimaPagina()" *ngIf="numPages > 1" class="page-item">
+                    <a title="ir para a última página" class="cursor-pointer page-link rounded" tabindex="0">
+                        <i class="ph ph-arrow-line-right"></i>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>

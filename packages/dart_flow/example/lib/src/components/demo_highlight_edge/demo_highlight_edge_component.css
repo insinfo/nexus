@@ -1,0 +1,19 @@
+.demo-highlight-edge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(16, 185, 129, 0.32);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+  color: #065f46;
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.demo-highlight-edge.is-selected {
+  border-color: rgba(13, 110, 253, 0.42);
+  color: #0d6efd;
+}

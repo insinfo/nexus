@@ -1,0 +1,44 @@
+//C:\MyDartProjects\new_sali\frontend\lib\src\shared\components\notification\notification.scss
+@keyframes toast-fade-in {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+@keyframes toast-fade-out {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+@keyframes timer {
+    from {
+        width: 0%;
+    }
+    to {
+        width: 100%;
+    }
+}
+.toast {
+    position: relative;
+}
+.timer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 0.25em;
+    border-top-right-radius: 20px;
+    border-top-left-radius: 20px;
+    overflow: hidden;
+    .elapsed {
+        height: 100%;
+        width: 0;
+        background-color: rgb(233, 233, 233);
+         opacity: 0.5;     
+    }
+}

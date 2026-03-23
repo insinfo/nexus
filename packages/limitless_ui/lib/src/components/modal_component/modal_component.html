@@ -1,0 +1,49 @@
+<div #modalRootElement class="modal fade show">
+    <!--(mouseup)="mouseEvent($event)" (click)="mouseEvent($event)"
+    
+    -->
+    <div (mousedown)="stopPropagation($event)" class="modal-dialog" 
+    [class.modal-xs]="size == 'modal-xs'" 
+    [class.modal-sm]="size == 'modal-sm'"
+        [class.modal-lg]="size == 'large'" [class.modal-xl]="size == 'xtra-large'" [class.modal-full]="size == 'modal-full'" 
+        [class.modal-default]="size == 'default'" [class.custom-modal-dialog-round]="enableRoundedCorners == true"
+        [class.modal-mobile-full]="fullScreenOnMobile"
+        [class.custom-modal-dialog-shadow]="enableShadow"
+        [class.modal-dialog-centered]="verticalCenter" 
+        [class.modal-dialog-scrollable]="dialogScrollable">
+
+        <div #modalContent class="modal-content">
+                <div #modalHeader *ngIf="enableHeader" class="modal-header  border-0"
+
+                 [class.bg-primary]="headerColor == 'primary'"
+                     [class.bg-warning]="headerColor == 'warning'"
+                     [class.bg-success]="headerColor == 'success'"
+                      [class.bg-info]="headerColor == 'info'"
+                     [class.bg-danger]="headerColor == 'danger'" 
+                     [class.bg-dark]="headerColor == 'dark'"
+                     [class.bg-default]="headerColor == null"
+                     [class.text-white]="headerColor != null && headerColor != 'warning'"
+                     [class.text-dark]="headerColor == 'warning'"
+                     [class.bg-indigo]="headerColor == 'bg-indigo'"
+                
+
+                     [class.custom-modal-header-round]="enableRoundedCorners == true">
+                <h5 class="modal-title">{{titleText}}</h5>
+                <button *ngIf="enableCloseBtn" (click)="close()" type="button" class="btn-close btn-close-white">
+                </button>
+            </div>
+            <div #modalBody class="modal-body position-relative"  [class.modal-body]="enableModalBodyClass==true">
+                <div *ngIf="showError" class="alert alert-info alert-icon-start alert-dismissible">
+                    <span class="alert-icon bg-info text-white">
+                        <i class="ph-info"></i>
+                    </span> {{errorMessage}}                   
+                    <!-- <span class="fw-semibold"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button> -->
+                </div>
+                <ng-content></ng-content>
+            </div>
+        </div>
+
+    </div>
+</div>
+<!--<div *ngIf="enableBackdrop ==true" class="custom-modal-background"></div>-->

@@ -1,0 +1,26 @@
+name: dart_flow_example
+description: 
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: ^3.2.1
+
+dependencies:
+  dart_flow:
+     path: ../
+  
+  collection: ^1.19.1
+  intl: any
+  ngdart: 8.0.0-dev.4
+  ngforms: 5.0.0-dev.3
+  ngrouter: 4.0.0-dev.3
+
+  
+
+dev_dependencies:
+  build_runner: ^2.4.15
+  build_web_compilers: ^4.1.1
+  lints: ^5.0.0
+  sass_builder: ^2.2.1
+

@@ -1,0 +1,7 @@
+include: package:lints/recommended.yaml
+
+analyzer:
+  exclude:
+    # Ignora os subprojetos auxiliares do workspace.
+    - packages/**
+    - referencias/**

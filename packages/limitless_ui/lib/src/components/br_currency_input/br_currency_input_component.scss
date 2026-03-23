@@ -1,0 +1,23 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.br-currency-input {
+  position: relative;
+  width: 100%;
+}
+
+.br-currency-input__prefix {
+  color: #6c757d;
+  left: 0.85rem;
+  pointer-events: none;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+}
+
+.br-currency-input__field {
+  padding-left: 3rem;
+}

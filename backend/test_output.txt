@@ -1,0 +1,127 @@
+00:00 +0: loading test\integration\consulta_protocolos_routes_integration_test.dart
+00:00 +0: test\integration\consulta_protocolos_routes_integration_test.dart: Rotas de consulta publica de protocolos consulta protocolo por numero ou codigo publico
+00:00 +1: test\integration\editor_fluxos_routes_integration_test.dart: Rotas de editor de fluxos (setUpAll)
+00:00 +1: test\integration\editor_servicos_routes_integration_test.dart: Rotas de editor de servicos salva rascunho com formulario completo do builder
+00:00 +1: test\integration\editor_fluxos_routes_integration_test.dart: Rotas de editor de fluxos valida fluxo valido no caminho montado da API
+EditorFluxosController@validarFluxo Invalid argument(s): TipoFluxo invalido: entradaDados #0      TipoFluxo.parse (package:nexus_core/src/models/comum/enums_nexus.dart:125:5)
+#1      new FluxoDto.fromMap (package:nexus_core/src/models/fluxo/fluxo_dto.dart:60:23)
+#2      EditorFluxosController.validarFluxo (package:nexus_backend/src/modules/editor_fluxos/controllers/editor_fluxos_controller.dart:14:30)
+<asynchronous suspension>
+#3      RouterEntry.invoke.<anonymous closure> (package:shelf_router/src/router_entry.dart:107:16)
+<asynchronous suspension>
+#4      RouterEntry.invoke (package:shelf_router/src/router_entry.dart:104:12)
+<asynchronous suspension>
+#5      Router.call (package:shelf_router/src/router.dart:184:26)
+<asynchronous suspension>
+#6      RouterEntry.invoke.<anonymous closure> (package:shelf_router/src/router_entry.dart:107:16)
+<asynchronous suspension>
+#7      RouterEntry.invoke (package:shelf_router/src/router_entry.dart:104:12)
+<asynchronous suspension>
+#8      Router.call (package:shelf_router/src/router.dart:184:26)
+<asynchronous suspension>
+#9      main.<anonymous closure>.<anonymous closure> (file:///C:/MyDartProjects/dart_flow/nexus/backend/test/integration/editor_fluxos_routes_integration_test.dart:17:24)
+<asynchronous suspension>
+#10     Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:242:9)
+<asynchronous suspension>
+#11     Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:240:7)
+<asynchronous suspension>
+#12     Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:282:9)
+<asynchronous suspension>
+
+00:00 +1 -1: test\integration\editor_servicos_routes_integration_test.dart: Rotas de editor de servicos salva rascunho com formulario completo do builder
+00:00 +1 -1: test\integration\editor_fluxos_routes_integration_test.dart: Rotas de editor de fluxos valida fluxo valido no caminho montado da API [E]
+  Expected: <200>
+    Actual: <422>
+  
+  package:matcher                                                   expect
+  test\integration\editor_fluxos_routes_integration_test.dart 26:7  main.<fn>.<fn>
+  
+00:00 +2 -1: test\integration\health_routes_integration_test.dart: Rotas de health responde status ok no caminho montado da API
+00:00 +2 -2: test\integration\editor_fluxos_routes_integration_test.dart: Rotas de editor de fluxos pre-visualiza proximo no com condicao falsa
+EditorFluxosController@preVisualizarFluxo Invalid argument(s): TipoFluxo invalido: entradaDados #0      TipoFluxo.parse (package:nexus_core/src/models/comum/enums_nexus.dart:125:5)
+#1      new FluxoDto.fromMap (package:nexus_core/src/models/fluxo/fluxo_dto.dart:60:23)
+#2      new RequisicaoPreVisualizacaoFluxo.fromMap (package:nexus_core/src/models/fluxo/requisicao_pre_visualizacao_fluxo.dart:53:23)
+#3      EditorFluxosController.preVisualizarFluxo (package:nexus_backend/src/modules/editor_fluxos/controllers/editor_fluxos_controller.dart:42:57)
+<asynchronous suspension>
+#4      RouterEntry.invoke.<anonymous closure> (package:shelf_router/src/router_entry.dart:107:16)
+<asynchronous suspension>
+#5      RouterEntry.invoke (package:shelf_router/src/router_entry.dart:104:12)
+<asynchronous suspension>
+#6      Router.call (package:shelf_router/src/router.dart:184:26)
+<asynchronous suspension>
+#7      RouterEntry.invoke.<anonymous closure> (package:shelf_router/src/router_entry.dart:107:16)
+<asynchronous suspension>
+#8      RouterEntry.invoke (package:shelf_router/src/router_entry.dart:104:12)
+<asynchronous suspension>
+#9      Router.call (package:shelf_router/src/router.dart:184:26)
+<asynchronous suspension>
+#10     main.<anonymous closure>.<anonymous closure> (file:///C:/MyDartProjects/dart_flow/nexus/backend/test/integration/editor_fluxos_routes_integration_test.dart:36:24)
+<asynchronous suspension>
+#11     Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:242:9)
+<asynchronous suspension>
+#12     Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:240:7)
+<asynchronous suspension>
+#13     Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:282:9)
+<asynchronous suspension>
+
+00:00 +2 -3: test\integration\editor_servicos_routes_integration_test.dart: Rotas de editor de servicos publica versao em rascunho
+00:00 +3 -3: test\integration\editor_fluxos_routes_integration_test.dart: Rotas de editor de fluxos pre-visualiza proximo no com condicao falsa [E]
+  Expected: <200>
+    Actual: <422>
+  
+  package:matcher                                                   expect
+  test\integration\editor_fluxos_routes_integration_test.dart 51:7  main.<fn>.<fn>
+  
+00:00 +3 -3: test\integration\editor_fluxos_routes_integration_test.dart: Rotas de editor de fluxos (tearDownAll)
+00:00 +3 -3: test\integration\health_routes_integration_test.dart: Rotas de health responde status ok no caminho montado da API [E]
+  Expected: <200>
+    Actual: <404>
+  
+  package:matcher                                            expect
+  test\integration\health_routes_integration_test.dart 18:7  main.<fn>.<fn>
+  
+00:00 +3 -3: test\integration\operacao_real_postgres_integration_test.dart: Integração real com PostgreSQL seedado (setUpAll)
+00:00 +3 -3: test\integration\operacao_real_postgres_integration_test.dart: Integração real com PostgreSQL seedado lista fila operacional seedada e resultados auditáveis reais
+00:00 +4 -3: test\integration\operacao_real_postgres_integration_test.dart: Integração real com PostgreSQL seedado lista fila operacional seedada e resultados auditáveis reais
+00:00 +5 -3: test\integration\operacao_real_postgres_integration_test.dart: Integração real com PostgreSQL seedado lista fila operacional seedada e resultados auditáveis reais
+00:00 +6 -3: test\integration\operacao_real_postgres_integration_test.dart: Integração real com PostgreSQL seedado lista fila operacional seedada e resultados auditáveis reais
+00:00 +6 -4: test\integration\operacao_real_postgres_integration_test.dart: Integração real com PostgreSQL seedado lista fila operacional seedada e resultados auditáveis reais
+00:00 +6 -4: test\integration\runtime_routes_integration_test.dart: Rotas de runtime inicia sessao publicada e consulta estado atual [E]
+  Expected: 'emAndamento'
+    Actual: 'em_andamento'
+     Which: is different.
+            Expected: emAndamento
+              Actual: em_andamento ...
+                        ^
+             Differ at offset 2
+  
+  package:matcher                                             expect
+  test\integration\runtime_routes_integration_test.dart 46:7  main.<fn>.<fn>
+  
+00:00 +7 -4: test\integration\operacao_real_postgres_integration_test.dart: Integração real com PostgreSQL seedado lista fila operacional seedada e resultados auditáveis reais
+00:00 +8 -4: test\integration\operacao_real_postgres_integration_test.dart: Integração real com PostgreSQL seedado lista fila operacional seedada e resultados auditáveis reais
+00:00 +9 -4: test\integration\operacao_real_postgres_integration_test.dart: Integração real com PostgreSQL seedado lista fila operacional seedada e resultados auditáveis reais
+00:00 +10 -4: test\integration\operacao_real_postgres_integration_test.dart: Integração real com PostgreSQL seedado lista fila operacional seedada e resultados auditáveis reais
+00:01 +11 -4: test\integration\operacao_real_postgres_integration_test.dart: Integração real com PostgreSQL seedado lista fila operacional seedada e resultados auditáveis reais
+00:01 +12 -4: test\integration\runtime_internal_nodes_real_postgres_integration_test.dart: Integração real do runtime com nós internos executa tarefa interna, status, pontuação e classificação no mesmo fluxo
+00:01 +13 -4: test\integration\runtime_internal_nodes_real_postgres_integration_test.dart: Integração real do runtime com nós internos executa tarefa interna, status, pontuação e classificação no mesmo fluxo
+00:01 +14 -4: test\integration\runtime_internal_nodes_real_postgres_integration_test.dart: Integração real do runtime com nós internos executa tarefa interna, status, pontuação e classificação no mesmo fluxo
+00:01 +15 -4: test\integration\runtime_internal_nodes_real_postgres_integration_test.dart: Integração real do runtime com nós internos executa tarefa interna, status, pontuação e classificação no mesmo fluxo
+00:01 +16 -4: test\integration\runtime_internal_nodes_real_postgres_integration_test.dart: Integração real do runtime com nós internos executa tarefa interna, status, pontuação e classificação no mesmo fluxo
+00:01 +16 -5: test\integration\runtime_internal_nodes_real_postgres_integration_test.dart: Integração real do runtime com nós internos executa tarefa interna, status, pontuação e classificação no mesmo fluxo [E]
+  Expected: 'emAndamento'
+    Actual: 'em_andamento'
+     Which: is different.
+            Expected: emAndamento
+              Actual: em_andamento ...
+                        ^
+             Differ at offset 2
+  
+  package:matcher                                                                   expect
+  test\integration\runtime_internal_nodes_real_postgres_integration_test.dart 69:7  main.<fn>.<fn>
+  
+00:01 +16 -5: test\integration\runtime_internal_nodes_real_postgres_integration_test.dart: Integração real do runtime com nós internos (tearDownAll)
+00:01 +16 -5: Some tests failed.
+
+Consider enabling the flag chain-stack-traces to receive more detailed exceptions.
+For example, 'dart test --chain-stack-traces'.

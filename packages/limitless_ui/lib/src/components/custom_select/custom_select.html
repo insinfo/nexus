@@ -1,0 +1,28 @@
+<div [attr.data-label]="'custom_select'" class="dropdown-collection">
+    <button type="button" [attr.data-label]="'custom_select_btn_toggle'" #dropdownButton
+        class="form-select dropdown-button" aria-haspopup="listbox" aria-labelledby="dropdown-label"
+        (click)="toggleDropdown()" tabindex="-1" [disabled]="isDisabled">
+
+        <span class="dropdown-value">{{currentValue?.text ?? placeholder}}</span>
+
+    </button>
+    <div #dropdownContainer [attr.data-id]="'dropdown_'+ id" class="dropdown-container dropdown-menu" role="listbox"
+        aria-expanded="false" [class.dropdown-open]="dropdownOpen">
+        <div class="dropdown-search" (click)="$event.stopPropagation()">
+            <div class="form-control-feedback form-control-feedback-start  m-2">
+                <input #inputSearch type="text" class="form-control" placeholder="Buscar"
+                    (keyup)="searchHandle($event.target.value, $event)"
+                    [attr.data-label]="'custom_select_input_search'">
+                <div class="form-control-feedback-icon">
+                    <i class="ph-magnifying-glass"></i>
+                </div>
+            </div>
+        </div>
+        <ul [attr.data-label]="'custom_select_options'">
+            <li class="dropdown-item" *ngFor="let o of options; let idx = index" [class.active]="currentValue == o"
+                [class.dropdown-item-disabled]="o.disabled"
+                tabindex="0" (click)="select(o)" role="option" [innerHTML]="o.text" [hidden]="o.visible == false"
+                [attr.data-label]="'custom_select_item_'+ idx.toString()"></li>
+        </ul>
+    </div>
+</div>

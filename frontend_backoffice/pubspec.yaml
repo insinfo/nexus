@@ -1,0 +1,29 @@
+name: nexus_frontend_backoffice
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.2.1
+
+dependencies:
+  essential_core:
+    path: ../packages/essential_core
+  intl: any
+  limitless_ui:
+    path: ../packages/limitless_ui
+  ngdart: 8.0.0-dev.4
+  ngforms: 5.0.0-dev.3
+  ngrouter: 4.0.0-dev.3
+  nexus_core:
+    path: ../core
+  dart_flow:
+    path: ../packages/dart_flow
+
+dev_dependencies:
+  build_runner: ^2.4.15
+  build_test: ^2.2.3
+  build_web_compilers: ^4.1.1
+  lints: ^5.0.0
+  ngtest: ^5.0.0-dev.3
+  sass_builder: ^2.2.1
+  test: ^1.26.3

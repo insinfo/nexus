@@ -1,0 +1,121 @@
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+.demo-shell {
+  min-height: 100vh;
+  padding: 1.5rem;
+  background:
+    radial-gradient(circle at top left, rgba(59, 130, 246, 0.12), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(14, 165, 233, 0.1), transparent 22%),
+    linear-gradient(180deg, #f8fafc, #eef4f8 48%, #e9f0f5);
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 1rem;
+  font-family: 'Inter', sans-serif;
+}
+
+.demo-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(18px);
+}
+
+.demo-hero h1 {
+  margin: 0.35rem 0 0.5rem;
+  font-size: clamp(1.65rem, 3vw, 2.6rem);
+  line-height: 1.05;
+}
+
+.demo-hero p {
+  margin: 0;
+  max-width: 60rem;
+  color: #475569;
+}
+
+.demo-kicker,
+.demo-panel__eyebrow {
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #0d6efd;
+}
+
+.demo-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.demo-canvas {
+  min-height: 640px;
+}
+
+.demo-panel {
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(14px);
+}
+
+.demo-panel--log {
+  min-width: 280px;
+}
+
+.demo-log-item {
+  font-size: 0.82rem;
+  color: #334155;
+  padding: 0.35rem 0;
+  border-top: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.demo-node {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.demo-node__icon {
+  width: 2rem;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(13, 110, 253, 0.1);
+  color: #0d6efd;
+}
+
+.demo-node__title {
+  font-size: 0.94rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.demo-node__subtitle {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #64748b;
+}
+
+@media (max-width: 840px) {
+  .demo-shell {
+    padding: 1rem;
+  }
+
+  .demo-hero {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .demo-canvas {
+    min-height: 520px;
+  }
+}

@@ -1,0 +1,40 @@
+[INFO] Generating build script...
+[INFO] Generating build script completed, took 317ms
+
+[INFO] Initializing inputs
+[INFO] Reading cached asset graph...
+[INFO] Reading cached asset graph completed, took 579ms
+
+[INFO] Checking for updates since last build...
+[INFO] Checking for updates since last build completed, took 759ms
+
+[INFO] Running build...
+[INFO] Running build completed, took 161ms
+
+[INFO] Caching finalized dependency graph...
+[INFO] Caching finalized dependency graph completed, took 301ms
+
+[SEVERE] ngdart on lib/src/modules/home/pages/main/main_page.dart (cached):
+An error occurred compiling third_party/dart/nexus_frontend_backoffice/lib/src/modules/home/pages/main/main_page.dart:
+One or more fatal errors occured during compilation:
+line 157, column 119 of package:nexus_frontend_backoffice/src/modules/home/pages/main/main_page.html: Parser Error: A function body must be provided. package:nexus_frontend_backoffice/src/modules/home/pages/main/main_page.html [selectedBuilderVersionId = version.id; publicarVersaoAtual()] in null
+    ÔòÀ
+157 Ôöé             <button type="button" class="btn btn-outline-success btn-sm mt-3" *ngIf="versaoPodeSerPublicada(version)" (click)="selectedBuilderVersionId = version.id; publicarVersaoAtual()" [disabled]="publishVersionLoading || saveDraftLoading || previewLoading || validationLoading">
+    Ôöé                                                                                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ÔòÁ
+
+[SEVERE] ngdart on lib/src/modules/home/pages/main/main_page.dart (cached):
+
+type 'Null' is not a subtype of type 'FutureOr<String>'
+[SEVERE] build_web_compilers:entrypoint on web/main.dart (cached):
+Unable to find modules for some sources, this is usually the result of either a
+bad import, a missing dependency in a package (or possibly a dev_dependency
+needs to move to a real dependency), or a build failure (if importing a
+generated file).
+
+Please check the following imports:
+
+`import 'package:nexus_frontend_backoffice/src/modules/home/pages/main/main_page.template.dart' as main_page_template;` from nexus_frontend_backoffice|lib/src/shared/routes/my_routes.dart at 2:1
+
+
+[SEVERE] Failed after 483ms

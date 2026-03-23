@@ -1,0 +1,91 @@
+[INFO] Generating build script...
+[INFO] Generating build script completed, took 286ms
+
+[INFO] Initializing inputs
+[INFO] Reading cached asset graph...
+[INFO] Reading cached asset graph completed, took 300ms
+
+[INFO] Checking for updates since last build...
+[INFO] Checking for updates since last build completed, took 649ms
+
+[INFO] Running build...
+[INFO] Running build completed, took 190ms
+
+[INFO] Caching finalized dependency graph...
+[INFO] Caching finalized dependency graph completed, took 279ms
+
+[SEVERE] build_web_compilers:entrypoint on web/main.dart (cached):
+
+AssetNotFoundException: nexus_frontend_portal|lib/src/modules/app/app_component.template.ddc.js.metadata
+[SEVERE] build_web_compilers:ddc on lib/src/modules/app/app_component.template.ddc.module (cached):
+Error compiling dartdevc module:nexus_frontend_portal|lib/src/modules/app/app_component.template.ddc.js
+
+packages/nexus_frontend_portal/src/modules/app/app_component.template.dart:1029:70: Error: The argument type 'String?' can't be assigned to the parameter type 'String' because 'String?' is nullable and 'String' isn't.
+    _ctx.atualizarCodigoConsultaProtocolo(local_codigoProtocoloInput.value);
+                                                                     ^
+packages/nexus_frontend_portal/src/modules/app/app_component.template.dart:1380:64: Error: A value of type 'String?' can't be assigned to a variable of type 'String' because 'String?' is nullable and 'String' isn't.
+    _ctx.loginUsuario.identificador = local_loginIdentificador.value;
+                                                               ^
+packages/nexus_frontend_portal/src/modules/app/app_component.template.dart:1386:48: Error: A value of type 'String?' can't be assigned to a variable of type 'String' because 'String?' is nullable and 'String' isn't.
+    _ctx.loginUsuario.senha = local_loginSenha.value;
+                                               ^
+packages/nexus_frontend_portal/src/modules/app/app_component.template.dart:1648:60: Error: A value of type 'String?' can't be assigned to a variable of type 'String' because 'String?' is nullable and 'String' isn't.
+    _ctx.cadastroUsuario.nomeExibicao = local_cadastroNome.value;
+                                                           ^
+packages/nexus_frontend_portal/src/modules/app/app_component.template.dart:1654:66: Error: A value of type 'String?' can't be assigned to a variable of type 'String' because 'String?' is nullable and 'String' isn't.
+    _ctx.cadastroUsuario.nomeUsuario = local_cadastroUsuarioNome.value;
+                                                                 ^
+packages/nexus_frontend_portal/src/modules/app/app_component.template.dart:1660:54: Error: A value of type 'String?' can't be assigned to a variable of type 'String' because 'String?' is nullable and 'String' isn't.
+    _ctx.cadastroUsuario.email = local_cadastroEmail.value;
+                                                     ^
+packages/nexus_frontend_portal/src/modules/app/app_component.template.dart:1678:69: Error: Property 'isEmpty' cannot be accessed on 'String?' because it is potentially null.
+Try accessing using ?. instead.
+    _ctx.cadastroUsuario.dataNascimento = (local_cadastroData.value.isEmpty ? null : _ctx.DateTime.parse(local_cadastroData.value));
+                                                                    ^^^^^^^
+packages/nexus_frontend_portal/src/modules/app/app_component.template.dart:1678:91: Error: The getter 'DateTime' isn't defined for the class 'AppComponent'.
+ - 'AppComponent' is from 'package:nexus_frontend_portal/src/modules/app/app_component.dart' ('packages/nexus_frontend_portal/src/modules/app/app_component.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'DateTime'.
+    _ctx.cadastroUsuario.dataNascimento = (local_cadastroData.value.isEmpty ? null : _ctx.DateTime.parse(local_cadastroData.value));
+                                                                                          ^^^^^^^^
+packages/nexus_frontend_portal/src/modules/app/app_component.template.dart:1684:54: Error: A value of type 'String?' can't be assigned to a variable of type 'String' because 'String?' is nullable and 'String' isn't.
+    _ctx.cadastroUsuario.senha = local_cadastroSenha.value;
+                                                     ^
+packages/nexus_frontend_portal/src/modules/app/app_component.template.dart:1860:83: Error: A value of type 'String?' can't be assigned to a variable of type 'String' because 'String?' is nullable and 'String' isn't.
+    _ctx.solicitarRedefinicaoSenha.identificador = local_recuperacaoIdentificador.value;
+                                                                                  ^
+packages/nexus_frontend_portal/src/modules/app/app_component.template.dart:1866:54: Error: A value of type 'String?' can't be assigned to a variable of type 'String' because 'String?' is nullable and 'String' isn't.
+    _ctx.redefinirSenha.token = local_novaSenhaToken.value;
+                                                     ^
+packages/nexus_frontend_portal/src/modules/app/app_component.template.dart:1872:58: Error: A value of type 'String?' can't be assigned to a variable of type 'String' because 'String?' is nullable and 'String' isn't.
+    _ctx.redefinirSenha.novaSenha = local_novaSenhaValor.value;
+                                                         ^
+packages/nexus_frontend_portal/src/modules/app/app_component.template.dart:3132:100: Error: The getter 'descricao' isn't defined for the class 'DadosNoApresentacao'.
+ - 'DadosNoApresentacao' is from 'package:nexus_core/src/models/fluxo/dados_no_apresentacao.dart' ('packages/nexus_core/src/models/fluxo/dados_no_apresentacao.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'descricao'.
+      import14.Inspector.instance.recordInput(this._NgIf_3_9, 'ngIf', ((_ctx.noApresentacaoAtual!).descricao != null));
+                                                                                                   ^^^^^^^^^
+packages/nexus_frontend_portal/src/modules/app/app_component.template.dart:3134:56: Error: The getter 'descricao' isn't defined for the class 'DadosNoApresentacao'.
+ - 'DadosNoApresentacao' is from 'package:nexus_core/src/models/fluxo/dados_no_apresentacao.dart' ('packages/nexus_core/src/models/fluxo/dados_no_apresentacao.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'descricao'.
+    this._NgIf_3_9.ngIf = ((_ctx.noApresentacaoAtual!).descricao != null) /* REF:package:nexus_frontend_portal/src/modules/app/app_component.html:32134:32180 */;
+                                                       ^^^^^^^^^
+packages/nexus_frontend_portal/src/modules/app/app_component.template.dart:3183:86: Error: The getter 'descricao' isn't defined for the class 'DadosNoApresentacao'.
+ - 'DadosNoApresentacao' is from 'package:nexus_core/src/models/fluxo/dados_no_apresentacao.dart' ('packages/nexus_core/src/models/fluxo/dados_no_apresentacao.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'descricao'.
+    this._textBinding_1.updateText(import16.interpolate0((_ctx.noApresentacaoAtual!).descricao)) /* REF:package:nexus_frontend_portal/src/modules/app/app_component.html:32181:32217 */;
+                                                                                     ^^^^^^^^^
+packages/nexus_frontend_portal/src/modules/app/app_component.template.dart:3525:73: Error: The argument type 'String?' can't be assigned to the parameter type 'String' because 'String?' is nullable and 'String' isn't.
+    _ctx.atualizarRespostaTexto(local_pergunta.campo, local_campoSelect.value);
+                                                                        ^
+packages/nexus_frontend_portal/src/modules/app/app_component.template.dart:3610:72: Error: The argument type 'String?' can't be assigned to the parameter type 'String' because 'String?' is nullable and 'String' isn't.
+    _ctx.atualizarRespostaTexto(local_pergunta.campo, local_campoLongo.value);
+                                                                       ^
+packages/nexus_frontend_portal/src/modules/app/app_component.template.dart:3651:75: Error: The argument type 'bool?' can't be assigned to the parameter type 'bool' because 'bool?' is nullable and 'bool' isn't.
+    _ctx.atualizarRespostaMarcacao(local_pergunta.campo, local_campoCheck.checked);
+                                                                          ^
+packages/nexus_frontend_portal/src/modules/app/app_component.template.dart:3694:72: Error: The argument type 'String?' can't be assigned to the parameter type 'String' because 'String?' is nullable and 'String' isn't.
+    _ctx.atualizarRespostaTexto(local_pergunta.campo, local_campoInput.value);
+                                                                       ^
+
+
+[SEVERE] Failed after 510ms

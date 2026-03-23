@@ -1,0 +1,26 @@
+<!--C:\MyDartProjects\new_sali\frontend\lib\src\shared\components\notification\notification.html-->
+<div [attr.data-label]="'notification_component'" class="position-fixed top-0 end-0 p-3 mb-5" style="z-index: 3000;">
+
+    <div *ngFor="let toast of service?.toasts; let toastIndex=index" class="toast {{toast.bgColor}}  border-0 fade show"
+        role="alert" aria-live="assertive" aria-atomic="true" style="margin: auto;"
+        [style.animation]="toast.cssAnimation" [style.top]='styleTop(toastIndex)'
+        [class.text-white]="toast.type != NotificationToastColor.none" [attr.data-label]="'notification_item'"
+        (click)="onToastClick(toast)" [style.cursor]="toast.link != null ? 'pointer' : 'default'">
+
+        <div class="timer">
+            <div class="elapsed" [style.animation]='"timer " + toast.cssDuration + " linear 0.3s"'>
+            </div>
+        </div>
+        <div class="toast-header bg-black bg-opacity-10 "
+            [class.text-white]="toast.type != NotificationToastColor.none">
+            <div class="fw-semibold me-auto">{{toast.title}}</div>
+            <button (click)="closeToast(toast)" type="button" class="btn-close " aria-label="Close"
+                [class.btn-close-white]="toast.type != NotificationToastColor.none"></button>
+        </div>
+        <div class="toast-body" [class.text-white]="toast.type != NotificationToastColor.none"
+            [attr.data-label]="'notification_item_body'">
+            {{toast.message}}
+        </div>
+    </div>
+
+</div>

@@ -1,0 +1,87 @@
+<div class="navbar navbar-expand-lg navbar-static border-bottom border-bottom-white border-opacity-10">
+    <div class="container-fluid">
+        <!-- <ul class="nav flex-row">
+            <li class="nav-item d-lg-none">
+                <a href="#navbar_search" class="navbar-nav-link navbar-nav-link-icon rounded-pill"
+                    [attr.data-bs-toggle]="'collapse'" aria-expanded="true">
+                    <i class="ph-magnifying-glass"></i>
+                </a>
+            </li>
+            <li class="nav-item ms-2">
+            </li>
+        </ul> collapse-->
+        <div class="navbar-collapse justify-content-center flex-lg-1 order-2 order-lg-1 " id="navbar_search">
+            <div class="navbar-search flex-fill position-relative mt-2 mt-lg-0 mx-lg-3">
+                <div class="form-control-feedback form-control-feedback-start flex-grow-1">
+                    <input #inputsearch (keydown.enter)="searchKeydownEnter(inputsearch)" type="text"
+                        class="form-control" placeholder="{{searchPlaceholder}}" aria-expanded="false">
+                    <div class="form-control-feedback-icon">
+                        <i class="ph-magnifying-glass"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- <ul class="nav flex-row justify-content-end order-1 order-lg-2">
+            <btn btn-flat-primary border-transparent btn-icon--
+            <a (click)="selectAllToogleAction()" class="navbar-nav-link navbar-nav-link-icon rounded-pill"
+                title="Selecionar tudo">
+                <i class="ph" [class.ph-check-circle]="!isSelectAll"></i>
+                <i class="ph" [class.ph-check-square-offset]="isSelectAll"></i>
+            </a>
+        </ul> -->
+    </div>
+</div>
+
+
+<div class="tree-checkbox border rounded p-3" style="position: relative;">
+    <div style="position: absolute;z-index: 10;top: 10px;right: 10px;">
+        <a (click)="selectAllToogleAction()" class="btn btn-flat-primary border-transparent btn-icon"
+            title="Selecionar tudo">
+            <i class="ph" [class.ph-check-circle]="!isSelectAll"></i>
+            <i class="ph" [class.ph-check-square-offset]="isSelectAll"></i>
+        </a>
+        <a (click)="expandAllToogleAction()" class="btn btn-flat-primary border-transparent btn-icon"
+            title="Expandir ou Colapsar tudo">
+            <i class="ph" [class.ph-arrows-out]="!isExpandAll"></i>
+            <i class="ph" [class.ph-arrows-in]="isExpandAll"></i>
+        </a>
+    </div>
+
+    <ul id="ft-id-8" class="ui-fancytree fancytree-container fancytree-plain" tabindex="0" role="tree"
+        aria-multiselectable="true">
+        <template #recursiveList let-list>
+            <li *ngFor="let item of list; let i = index" role="treeitem" aria-expanded="true" aria-selected="false">
+                <!-- fancytree-active 
+                   [class.fancytree-selected]="item.treeViewNodeIsSelected"
+                    -->
+                <!--fancytree-node fancytree-active fancytree-folder fancytree-has-children fancytree-exp-c fancytree-ico-cf-->
+                <span [hidden]="item.treeViewNodeFilter == false" class="fancytree-node"
+                    [class.fancytree-has-children]="item.treeViewNodes.isNotEmpty == true"
+                    [class.fancytree-exp-e]="item.treeViewNodeIsCollapse == true && item.treeViewNodes.isNotEmpty == true"
+                    [class.fancytree-ico-ef]="item.treeViewNodeIsCollapse == true && item.treeViewNodes.isNotEmpty == true"
+                    [class.fancytree-exp-c]="item.treeViewNodeIsCollapse == false && item.treeViewNodes.isNotEmpty == true"
+                    [class.fancytree-ico-cf]="item.treeViewNodeIsCollapse == false && item.treeViewNodes.isNotEmpty == true"
+                    [class.fancytree-partsel]="item.treeViewNodeIsSelected"
+                    [class.fancytree-exp-n]="item.treeViewNodes.isEmpty == true"
+                    [class.fancytree-ico-c]="item.treeViewNodes.isEmpty == true"
+                    [class.fancytree-selected]="item.isAllChildrenSelected == true">
+
+                    <span (click)="item.treeViewNodeIsCollapse=!item.treeViewNodeIsCollapse" role="button"
+                        class="fancytree-expander"> </span>
+
+                    <span (click)="selectItem(item)" role="checkbox" class="fancytree-checkbox"></span>
+
+                    <!-- <span role="presentation" class="fancytree-icon"> </span> -->
+                    <span class="fancytree-title">{{item.treeViewNodeLabel}}</span>
+                </span>
+                <ul [hidden]="item.treeViewNodeIsCollapse == true" *ngIf="item.treeViewNodes.isNotEmpty == true"
+                    role="group">
+                    <template [ngTemplateOutlet]="recursiveList" [ngTemplateOutletValue]="item.treeViewNodes">
+                    </template>
+                </ul>
+            </li>
+        </template>
+        <template [ngTemplateOutlet]="recursiveList" [ngTemplateOutletValue]="list"></template>
+    </ul>
+
+</div>

@@ -1,0 +1,89 @@
+<div class="date-range-wrapper">
+    <div #triggerElement class="input-group" (click)="toggleOpen()">
+        <input type="text" class="form-control date-range-field" [value]="displayValue" [placeholder]="placeholder"
+            readonly>
+        <button type="button" class="btn btn-light border" tabindex="-1">
+            <i class="ph ph-calendar-blank"></i>
+        </button>
+    </div>
+
+    <div #panelElement class="daterangepicker date-range-open ltr show-calendar opensright"
+        [class.is-open]="isOpen">
+        <div class="drp-calendars">
+            <div class="drp-calendar left">
+                <div class="calendar-table">
+                    <table class="table-condensed">
+                        <thead>
+                            <tr>
+                                <th class="prev available" (click)="prevMonth()"><span></span></th>
+                                <th colspan="5" class="month">{{ monthLabel(leftMonth) }}</th>
+                                <th></th>
+                            </tr>
+                            <tr>
+                                <th *ngFor="let weekday of weekdayLabels">{{ weekday }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let week of leftCalendar">
+                                <td *ngFor="let cell of week" [class.off]="!cell.isCurrentMonth"
+                                    [class.disabled]="isDisabled(cell.date)" [class.available]="!isDisabled(cell.date)"
+                                    [class.today]="isToday(cell.date)"
+                                    [class.active]="isStartDate(cell.date) || isEndDate(cell.date)"
+                                    [class.start-date]="isStartDate(cell.date)" [class.end-date]="isEndDate(cell.date)"
+                                    [class.in-range]="isInRange(cell.date)" (mouseenter)="hoverDay(cell.date)"
+                                    (click)="selectDay(cell.date)">
+                                    {{ cell.date.day }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="drp-calendar right">
+                <div class="calendar-table">
+                    <table class="table-condensed">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th colspan="5" class="month">{{ monthLabel(rightMonth) }}</th>
+                                <th class="next available" (click)="nextMonth()"><span></span></th>
+                            </tr>
+                            <tr>
+                                <th *ngFor="let weekday of weekdayLabels">{{ weekday }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let week of rightCalendar">
+                                <td *ngFor="let cell of week" [class.off]="!cell.isCurrentMonth"
+                                    [class.disabled]="isDisabled(cell.date)" [class.available]="!isDisabled(cell.date)"
+                                    [class.today]="isToday(cell.date)"
+                                    [class.active]="isStartDate(cell.date) || isEndDate(cell.date)"
+                                    [class.start-date]="isStartDate(cell.date)" [class.end-date]="isEndDate(cell.date)"
+                                    [class.in-range]="isInRange(cell.date)" (mouseenter)="hoverDay(cell.date)"
+                                    (click)="selectDay(cell.date)">
+                                    {{ cell.date.day }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="drp-buttons">
+            <span class="drp-selected">
+                {{ draftDisplayValue.isEmpty ? 'Nenhum período selecionado' : draftDisplayValue }}
+            </span>
+            <button type="button" class="btn btn-light" (click)="clear()">
+                Limpar
+            </button>
+            <button type="button" class="btn btn-light" (click)="close()">
+                Cancelar
+            </button>
+            <button type="button" class="btn btn-primary" [disabled]="!canApply" (click)="apply()">
+                Aplicar
+            </button>
+        </div>
+    </div>
+</div>

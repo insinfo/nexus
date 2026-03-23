@@ -1,0 +1,617 @@
+<div class="portal-layout">
+  <header class="navbar navbar-dark navbar-static px-3 px-lg-4 portal-navbar">
+    <div class="d-flex align-items-center gap-3">
+      <div class="portal-navbar__brand-icon">
+        <i class="ph-circles-four"></i>
+      </div>
+      <div>
+        <div class="portal-navbar__brand-title">Nexus</div>
+        <div class="portal-navbar__brand-subtitle">Portal do cidadao</div>
+      </div>
+    </div>
+
+    <div class="d-flex align-items-center gap-2 portal-navbar__actions">
+      <span class="badge bg-primary">SIGEP</span>
+      <span class="badge bg-success">SEQUAL</span>
+      <span class="badge bg-warning text-dark">SALUS</span>
+      <button type="button" class="btn btn-primary btn-sm" (click)="carregarPortal()" [disabled]="carregando">
+        {{ carregando ? 'Atualizando...' : 'Atualizar portal' }}
+      </button>
+    </div>
+  </header>
+
+  <div class="page-content">
+    <div class="content-wrapper">
+      <section class="page-header page-header-light shadow-sm portal-page-header">
+        <div class="page-header-content d-lg-flex align-items-lg-center justify-content-lg-between">
+          <div class="page-title mb-0">
+            <h4 class="mb-1">
+              <span class="fw-normal text-muted me-2">Portal</span>
+              {{ portal.tituloPortal }}
+            </h4>
+            <div class="text-muted portal-page-header__summary">{{ portal.subtituloPortal }}</div>
+          </div>
+
+          <div class="portal-page-header__metrics mt-3 mt-lg-0">
+            <div class="portal-metric-chip">
+              <span>Servicos</span>
+              <strong>{{ portal.catalogoServicos.length }}</strong>
+            </div>
+            <div class="portal-metric-chip">
+              <span>Noticias</span>
+              <strong>{{ portal.noticias.length }}</strong>
+            </div>
+            <div class="portal-metric-chip">
+              <span>Editais</span>
+              <strong>{{ portal.publicacoesOficiais.length }}</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="page-header-content border-top">
+          <div class="d-flex flex-wrap align-items-center gap-2 py-2 text-muted small">
+            <i class="ph-house"></i>
+            <span>Portal do cidadao</span>
+            <span>/</span>
+            <span>Catalogo publico</span>
+            <span>/</span>
+            <span>Autenticacao e protocolos</span>
+          </div>
+        </div>
+      </section>
+
+      <main class="content portal-content">
+        <div class="alert alert-info border-0 shadow-sm" *ngIf="carregando">
+          Carregando catalogo publicado...
+        </div>
+        <div class="alert alert-danger border-0 shadow-sm" *ngIf="erro != null">
+          {{ erro }}
+        </div>
+
+        <section class="card border-0 shadow-sm portal-hero-card mb-4 overflow-hidden">
+          <div class="card-body p-4 p-lg-5">
+            <div class="row g-4 align-items-stretch">
+              <div class="col-12 col-xl-7">
+                <div class="portal-section-label">Portal Nexus</div>
+                <h1 class="portal-hero-card__title">Jornada publica unificada para servicos municipais</h1>
+                <p class="portal-hero-card__description">
+                  Entrada unica para atendimento, inscricoes, protocolos e acompanhamento em tempo real.
+                  O layout agora usa a composicao visual do Limitless para cards, headers e formularios.
+                </p>
+
+                <div class="d-flex flex-wrap gap-2 mt-4">
+                  <button type="button" class="btn btn-primary" (click)="iniciarServico(portal.servicoDestaque.id)" [disabled]="runtimeCarregando">
+                    {{ runtimeCarregando && idServicoEmExecucao == portal.servicoDestaque.id ? 'Iniciando...' : 'Iniciar servico em destaque' }}
+                  </button>
+                  <button type="button" class="btn btn-light" (click)="abrirAbaAcesso('cadastro')">Criar conta de cidadao</button>
+                </div>
+              </div>
+
+              <div class="col-12 col-xl-5">
+                <article class="card border-0 portal-highlight-card h-100 mb-0">
+                  <div class="card-body">
+                    <div class="portal-section-label portal-section-label--light">Servico em destaque</div>
+                    <h2>{{ portal.servicoDestaque.titulo }}</h2>
+                    <p>{{ portal.servicoDestaque.resumo }}</p>
+
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                      <span class="badge bg-white text-body">{{ portal.servicoDestaque.categoria }}</span>
+                      <span class="badge bg-success" *ngIf="portal.servicoDestaque.tempoEstimado != null">{{ portal.servicoDestaque.tempoEstimado }}</span>
+                    </div>
+
+                    <div class="portal-highlight-card__footer">
+                      <span>{{ portal.servicoDestaque.publico }}</span>
+                      <span>{{ portal.servicoDestaque.codigo }}</span>
+                    </div>
+                  </div>
+                </article>
+              </div>
+
+              <div class="col-12">
+                <div class="row g-3">
+                  <div class="col-12 col-md-6 col-xl-3" *ngFor="let shortcut of portal.atalhos">
+                    <article class="card border-0 shadow-none portal-shortcut-card h-100 mb-0">
+                      <div class="card-body">
+                        <div class="portal-shortcut-card__icon">
+                          <i class="{{ shortcut.icone }}"></i>
+                        </div>
+                        <h3>{{ shortcut.rotulo }}</h3>
+                        <p>{{ shortcut.descricao }}</p>
+                      </div>
+                    </article>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div class="row g-4">
+          <div class="col-12 col-xl-8">
+            <section class="card border-0 shadow-sm mb-4">
+              <div class="card-header bg-transparent d-sm-flex align-items-center justify-content-between gap-3">
+                <div>
+                  <div class="portal-section-label">Acesso do cidadao</div>
+                  <h5 class="mb-0">Login, cadastro e recuperacao</h5>
+                </div>
+
+                <div class="portal-session-inline" *ngIf="usuarioAutenticado && sessaoUsuario != null">
+                  <strong>{{ sessaoUsuario!.usuario.nomeExibicao }}</strong>
+                  <span>{{ sessaoUsuario!.usuario.email }}</span>
+                  <button type="button" class="btn btn-outline-light btn-sm" (click)="encerrarSessaoAcesso()">Encerrar sessao</button>
+                </div>
+              </div>
+
+              <div class="card-body">
+                <ul class="nav nav-pills portal-access-tabs mb-4">
+                  <li class="nav-item">
+                    <button type="button" class="nav-link" [class.active]="abaLoginAtiva" (click)="abrirAbaAcesso('login')">Entrar</button>
+                  </li>
+                  <li class="nav-item">
+                    <button type="button" class="nav-link" [class.active]="abaCadastroAtiva" (click)="abrirAbaAcesso('cadastro')">Cadastrar</button>
+                  </li>
+                  <li class="nav-item">
+                    <button type="button" class="nav-link" [class.active]="abaRecuperacaoAtiva" (click)="abrirAbaAcesso('recuperacao')">Recuperar senha</button>
+                  </li>
+                </ul>
+
+                <div class="alert alert-danger" *ngIf="erroAcesso != null">{{ erroAcesso }}</div>
+                <div class="alert alert-success" *ngIf="mensagemAcesso != null && erroAcesso == null">{{ mensagemAcesso }}</div>
+
+                <div class="row g-4">
+                  <div class="col-12 col-lg-7">
+                    <article class="card border portal-access-panel shadow-none mb-0" *ngIf="abaLoginAtiva">
+                      <div class="card-body">
+                        <div class="portal-form-title">Entrar na conta</div>
+                        <p class="text-muted mb-4">Use email, usuario ou CPF para acompanhar protocolos e acelerar novos envios.</p>
+
+                        <div class="mb-3">
+                          <label class="form-label">Identificador</label>
+                          <div class="input-group">
+                            <span class="input-group-text"><i class="ph-user"></i></span>
+                            <input #loginIdentificador class="form-control" [value]="loginUsuario.identificador" (input)="loginUsuario.identificador = loginIdentificador.value" placeholder="Email, usuario ou CPF" />
+                          </div>
+                        </div>
+
+                        <div class="mb-0">
+                          <label class="form-label">Senha</label>
+                          <div class="input-group">
+                            <span class="input-group-text"><i class="ph-lock-key"></i></span>
+                            <input #loginSenha class="form-control" type="password" [value]="loginUsuario.senha" (input)="loginUsuario.senha = loginSenha.value" placeholder="Informe sua senha" />
+                          </div>
+                        </div>
+
+                        <button type="button" class="btn btn-primary mt-4" (click)="entrarContaCidadao()" [disabled]="acessoCarregando">
+                          {{ acessoCarregando ? 'Entrando...' : 'Entrar' }}
+                        </button>
+
+                        <button type="button" class="btn btn-light mt-2" (click)="iniciarFederacaoMicrosoft()" [disabled]="acessoCarregando">
+                          {{ acessoCarregando ? 'Preparando federacao...' : 'Entrar com Microsoft AD' }}
+                        </button>
+                      </div>
+                    </article>
+
+                    <article class="card border portal-access-panel shadow-none mb-0" *ngIf="abaCadastroAtiva">
+                      <div class="card-body">
+                        <div class="portal-form-title">Criar conta</div>
+                        <p class="text-muted mb-4">Cadastro em uma base unica para servicos, editais, cursos e acompanhamentos.</p>
+
+                        <div class="row g-3">
+                          <div class="col-12 col-md-6">
+                            <label class="form-label">Nome de exibicao</label>
+                            <div class="input-group">
+                              <span class="input-group-text"><i class="ph-user-circle"></i></span>
+                              <input #cadastroNome class="form-control" [value]="cadastroUsuario.nomeExibicao" (input)="cadastroUsuario.nomeExibicao = cadastroNome.value" placeholder="Como deseja aparecer" />
+                            </div>
+                          </div>
+                          <div class="col-12 col-md-6">
+                            <label class="form-label">Nome de usuario</label>
+                            <div class="input-group">
+                              <span class="input-group-text"><i class="ph-at"></i></span>
+                              <input #cadastroUsuarioNome class="form-control" [value]="cadastroUsuario.nomeUsuario" (input)="cadastroUsuario.nomeUsuario = cadastroUsuarioNome.value" placeholder="Usuario de acesso" />
+                            </div>
+                          </div>
+                          <div class="col-12 col-md-6">
+                            <label class="form-label">Email</label>
+                            <div class="input-group">
+                              <span class="input-group-text"><i class="ph-envelope-simple"></i></span>
+                              <input #cadastroEmail class="form-control" type="email" [value]="cadastroUsuario.email" (input)="cadastroUsuario.email = cadastroEmail.value" placeholder="seu@email.gov.br" />
+                            </div>
+                          </div>
+                          <div class="col-12 col-md-6">
+                            <label class="form-label">CPF</label>
+                            <div class="input-group">
+                              <span class="input-group-text"><i class="ph-identification-card"></i></span>
+                              <input #cadastroCpf class="form-control" [value]="cadastroUsuario.cpf ?? ''" (input)="cadastroUsuario.cpf = cadastroCpf.value" placeholder="000.000.000-00" />
+                            </div>
+                          </div>
+                          <div class="col-12 col-md-6">
+                            <label class="form-label">Telefone</label>
+                            <div class="input-group">
+                              <span class="input-group-text"><i class="ph-phone"></i></span>
+                              <input #cadastroTelefone class="form-control" [value]="cadastroUsuario.telefone ?? ''" (input)="cadastroUsuario.telefone = cadastroTelefone.value" placeholder="(22) 99999-9999" />
+                            </div>
+                          </div>
+                          <div class="col-12 col-md-6">
+                            <label class="form-label">Data de nascimento</label>
+                            <div class="input-group">
+                              <span class="input-group-text"><i class="ph-calendar"></i></span>
+                              <input #cadastroData class="form-control" type="date" [value]="cadastroUsuario.dataNascimento?.toIso8601String().substring(0, 10) ?? ''" (change)="cadastroUsuario.dataNascimento = cadastroData.value.isEmpty ? null : DateTime.parse(cadastroData.value)" />
+                            </div>
+                          </div>
+                          <div class="col-12">
+                            <label class="form-label">Senha</label>
+                            <div class="input-group">
+                              <span class="input-group-text"><i class="ph-lock-key-open"></i></span>
+                              <input #cadastroSenha class="form-control" type="password" [value]="cadastroUsuario.senha" (input)="cadastroUsuario.senha = cadastroSenha.value" placeholder="Crie uma senha segura" />
+                            </div>
+                          </div>
+                        </div>
+
+                        <button type="button" class="btn btn-primary mt-4" (click)="cadastrarContaCidadao()" [disabled]="acessoCarregando">
+                          {{ acessoCarregando ? 'Cadastrando...' : 'Criar conta' }}
+                        </button>
+                      </div>
+                    </article>
+
+                    <article class="card border portal-access-panel shadow-none mb-0" *ngIf="abaRecuperacaoAtiva">
+                      <div class="card-body">
+                        <div class="portal-form-title">Recuperar acesso</div>
+                        <p class="text-muted mb-4">Gere um token temporario e conclua a troca de senha no proprio portal.</p>
+
+                        <div class="mb-3">
+                          <label class="form-label">Email, usuario ou CPF</label>
+                          <div class="input-group">
+                            <span class="input-group-text"><i class="ph-magnifying-glass"></i></span>
+                            <input #recuperacaoIdentificador class="form-control" [value]="solicitarRedefinicaoSenha.identificador" (input)="solicitarRedefinicaoSenha.identificador = recuperacaoIdentificador.value" placeholder="Identificador da conta" />
+                          </div>
+                        </div>
+
+                        <button type="button" class="btn btn-outline-primary" (click)="solicitarRecuperacaoSenha()" [disabled]="acessoCarregando">
+                          {{ acessoCarregando ? 'Solicitando...' : 'Gerar token temporario' }}
+                        </button>
+
+                        <div class="portal-token-card mt-4" *ngIf="redefinicaoSolicitada != null && redefinicaoSolicitada!.token != null">
+                          <div class="portal-token-card__label">Token temporario gerado</div>
+                          <strong>{{ redefinicaoSolicitada!.token }}</strong>
+                          <span *ngIf="redefinicaoSolicitada!.expiraEm != null">Expira em {{ formatDate(redefinicaoSolicitada!.expiraEm!) }}</span>
+                        </div>
+
+                        <div class="mt-4">
+                          <label class="form-label">Token</label>
+                          <div class="input-group">
+                            <span class="input-group-text"><i class="ph-key"></i></span>
+                            <input #novaSenhaToken class="form-control" [value]="redefinirSenha.token" (input)="redefinirSenha.token = novaSenhaToken.value" placeholder="Cole o token recebido" />
+                          </div>
+                        </div>
+
+                        <div class="mt-3">
+                          <label class="form-label">Nova senha</label>
+                          <div class="input-group">
+                            <span class="input-group-text"><i class="ph-password"></i></span>
+                            <input #novaSenhaValor class="form-control" type="password" [value]="redefinirSenha.novaSenha" (input)="redefinirSenha.novaSenha = novaSenhaValor.value" placeholder="Defina a nova senha" />
+                          </div>
+                        </div>
+
+                        <button type="button" class="btn btn-primary mt-4" (click)="confirmarRecuperacaoSenha()" [disabled]="acessoCarregando">
+                          {{ acessoCarregando ? 'Redefinindo...' : 'Confirmar nova senha' }}
+                        </button>
+                      </div>
+                    </article>
+                  </div>
+
+                  <div class="col-12 col-lg-5">
+                    <aside class="card border-0 portal-side-note h-100 mb-0">
+                      <div class="card-body">
+                        <div class="portal-section-label">Sessao e beneficios</div>
+
+                        <div *ngIf="sessaoUsuario != null">
+                          <h5 class="mb-1">{{ sessaoUsuario!.usuario.nomeExibicao }}</h5>
+                          <p class="text-muted mb-3">{{ sessaoUsuario!.usuario.email }}</p>
+
+                          <div class="portal-side-note__meta">
+                            <span>Token {{ sessaoUsuario!.tipoToken }}</span>
+                            <span *ngIf="sessaoUsuario!.expiraEm != null">Expira em {{ formatDate(sessaoUsuario!.expiraEm!) }}</span>
+                          </div>
+                        </div>
+
+                        <div *ngIf="sessaoUsuario == null">
+                          <h5 class="mb-2">Conta unica do cidadao</h5>
+                          <p class="text-muted mb-3">A mesma identidade serve para servicos sociais, estagio publico e qualificacao profissional.</p>
+                        </div>
+
+                        <div class="portal-benefits-list">
+                          <div class="portal-benefit-item">
+                            <i class="ph-check-circle text-success"></i>
+                            <span>Acompanhe protocolos publicos em um painel unico</span>
+                          </div>
+                          <div class="portal-benefit-item">
+                            <i class="ph-check-circle text-success"></i>
+                            <span>Reaproveite dados cadastrais entre servicos</span>
+                          </div>
+                          <div class="portal-benefit-item">
+                            <i class="ph-check-circle text-success"></i>
+                            <span>Recupere acesso diretamente no portal</span>
+                          </div>
+                        </div>
+
+                        <div class="alert alert-primary mt-4 mb-0 portal-federation-note">
+                          <div class="fw-semibold mb-1">Provedor OpenID Connect do Nexus</div>
+                          <div>
+                            O portal agora autentica por authorization code com PKCE no provedor OIDC do Nexus e ja inicia a federacao com Microsoft Active Directory quando configurada.
+                          </div>
+                        </div>
+                      </div>
+                    </aside>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section class="card border-0 shadow-sm mb-4">
+              <div class="card-header bg-transparent">
+                <div class="portal-section-label">Consulta publica</div>
+                <h5 class="mb-0">Consultar protocolo</h5>
+              </div>
+
+              <div class="card-body">
+                <div class="row g-4 align-items-start">
+                  <div class="col-12 col-lg-5">
+                    <label for="codigo-protocolo" class="form-label">Numero de protocolo ou codigo publico</label>
+                    <div class="input-group mb-3">
+                      <span class="input-group-text"><i class="ph-magnifying-glass"></i></span>
+                      <input id="codigo-protocolo" #codigoProtocoloInput class="form-control" [value]="codigoConsultaProtocolo" (input)="atualizarCodigoConsultaProtocolo(codigoProtocoloInput.value)" placeholder="Ex.: PROT-2026-000123" />
+                    </div>
+                    <button type="button" class="btn btn-primary" (click)="consultarProtocoloPublico()" [disabled]="consultaProtocoloCarregando">
+                      {{ consultaProtocoloCarregando ? 'Consultando...' : 'Consultar protocolo' }}
+                    </button>
+                    <div class="alert alert-danger mt-3 mb-0" *ngIf="erroConsultaProtocolo != null">{{ erroConsultaProtocolo }}</div>
+                  </div>
+
+                  <div class="col-12 col-lg-7" *ngIf="protocoloConsultado != null">
+                    <article class="portal-protocol-card">
+                      <div class="portal-protocol-card__topline">
+                        <strong>{{ protocoloConsultado!.numeroProtocolo }}</strong>
+                        <span class="badge bg-success">{{ rotuloStatusProtocolo(protocoloConsultado!.status) }}</span>
+                      </div>
+
+                      <h3>{{ protocoloConsultado!.nomeServico }}</h3>
+                      <div class="portal-meta-line">
+                        {{ protocoloConsultado!.codigoServico }} · versao {{ protocoloConsultado!.numeroVersaoServico }} · {{ formatDate(protocoloConsultado!.criadoEm) }}
+                      </div>
+                      <p class="mt-3 mb-2">Codigo publico: {{ protocoloConsultado!.codigoPublico }}</p>
+                      <p class="text-muted mb-0" *ngIf="protocoloConsultado!.descricaoStatus != null">{{ protocoloConsultado!.descricaoStatus }}</p>
+
+                      <div class="portal-protocol-metrics mt-4">
+                        <div class="portal-mini-metric">
+                          <span>Total de respostas</span>
+                          <strong>{{ protocoloConsultado!.totalRespostas }}</strong>
+                        </div>
+                        <div class="portal-mini-metric">
+                          <span>Status atual</span>
+                          <strong>{{ rotuloStatusProtocolo(protocoloConsultado!.status) }}</strong>
+                        </div>
+                      </div>
+
+                      <div class="portal-timeline mt-4" *ngIf="protocoloConsultado!.andamentos.isNotEmpty">
+                        <div class="portal-timeline__title">Andamento publico</div>
+                        <article class="portal-timeline__item" *ngFor="let item of protocoloConsultado!.andamentos">
+                          <div class="portal-timeline__topline">
+                            <strong>{{ item.titulo }}</strong>
+                            <span class="badge" [class.bg-success]="item.situacao == 'concluida'" [class.bg-primary]="item.situacao == 'atual'" [class.bg-light]="item.situacao == 'pendente'" [class.text-body]="item.situacao == 'pendente'">
+                              {{ rotuloSituacaoAndamento(item.situacao) }}
+                            </span>
+                          </div>
+                          <p>{{ item.descricao }}</p>
+                          <small *ngIf="item.data != null">Atualizado em {{ formatDate(item.data!) }}</small>
+                        </article>
+                      </div>
+
+                      <div class="portal-response-summary mt-4" *ngIf="protocoloConsultado!.respostasResumo.isNotEmpty">
+                        <div class="portal-timeline__title">Resumo do envio</div>
+                        <div class="portal-response-summary__grid">
+                          <div class="portal-response-summary__item" *ngFor="let item of protocoloConsultado!.respostasResumo">
+                            <span>{{ item.rotulo }}</span>
+                            <strong>{{ item.valor }}</strong>
+                          </div>
+                        </div>
+                      </div>
+
+                      <pre class="runtime-json mt-4">{{ protocoloConsultadoFormatado() }}</pre>
+                    </article>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section class="card border-0 shadow-sm mb-0">
+              <div class="card-header bg-transparent d-sm-flex align-items-center justify-content-between gap-3">
+                <div>
+                  <div class="portal-section-label">Service pages</div>
+                  <h5 class="mb-0">Mapa de servicos publicados</h5>
+                </div>
+                <span class="text-muted small">Estrutura visual inspirada na pagina sitemap do Limitless</span>
+              </div>
+
+              <div class="card-body">
+                <div class="portal-sitemap-grid">
+                  <article class="portal-sitemap-item" *ngFor="let item of portal.catalogoServicos">
+                    <div class="portal-sitemap-item__topline">
+                      <span class="portal-sitemap-item__code">{{ item.codigo }}</span>
+                      <span class="badge bg-light text-body" *ngIf="item.tempoEstimado != null">{{ item.tempoEstimado }}</span>
+                    </div>
+                    <h3>{{ item.titulo }}</h3>
+                    <p>{{ item.resumo }}</p>
+                    <div class="portal-meta-line">{{ item.categoria }} · {{ item.publico }}</div>
+                    <button type="button" class="btn btn-outline-primary btn-sm mt-3" (click)="iniciarServico(item.id)" [disabled]="runtimeCarregando">
+                      {{ runtimeCarregando && idServicoEmExecucao == item.id ? 'Iniciando...' : 'Executar servico' }}
+                    </button>
+                  </article>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <div class="col-12 col-xl-4">
+            <aside class="portal-sidebar-stack">
+              <article class="card border-0 shadow-sm portal-summary-card mb-0">
+                <div class="card-body">
+                  <div class="portal-section-label">Painel rapido</div>
+                  <div class="portal-summary-card__grid">
+                    <div>
+                      <span>Servico destaque</span>
+                      <strong>{{ portal.servicoDestaque.codigo }}</strong>
+                    </div>
+                    <div>
+                      <span>Paginas</span>
+                      <strong>{{ portal.paginasInstitucionais.length }}</strong>
+                    </div>
+                    <div>
+                      <span>Publicacoes</span>
+                      <strong>{{ portal.publicacoesOficiais.length }}</strong>
+                    </div>
+                    <div>
+                      <span>Sessao</span>
+                      <strong>{{ usuarioAutenticado ? 'Ativa' : 'Local' }}</strong>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+              <article class="card border-0 shadow-sm mb-0">
+                <div class="card-header bg-transparent">
+                  <div class="portal-section-label">Noticias</div>
+                  <h5 class="mb-0">Portal institucional</h5>
+                </div>
+                <div class="card-body portal-list-body">
+                  <article class="portal-list-item" *ngFor="let item of portal.noticias">
+                    <div class="portal-list-item__topline">
+                      <span class="badge" [class.bg-primary]="item.destaque" [class.bg-light]="!item.destaque" [class.text-body]="!item.destaque">{{ item.categoria }}</span>
+                      <span>{{ formatDate(item.publicadoEm) }}</span>
+                    </div>
+                    <h3>{{ item.titulo }}</h3>
+                    <p>{{ item.resumo }}</p>
+                  </article>
+                </div>
+              </article>
+
+              <article class="card border-0 shadow-sm mb-0">
+                <div class="card-header bg-transparent">
+                  <div class="portal-section-label">Paginas institucionais</div>
+                  <h5 class="mb-0">Conteudo permanente</h5>
+                </div>
+                <div class="card-body portal-list-body">
+                  <article class="portal-list-item portal-list-item--warm" *ngFor="let item of portal.paginasInstitucionais">
+                    <div class="portal-meta-line">
+                      <span>{{ item.secao }}</span>
+                      <span>{{ item.status.label }}</span>
+                    </div>
+                    <h3>{{ item.titulo }}</h3>
+                    <p *ngIf="item.resumo != null">{{ item.resumo }}</p>
+                  </article>
+                </div>
+              </article>
+
+              <article class="card border-0 shadow-sm mb-0">
+                <div class="card-header bg-transparent">
+                  <div class="portal-section-label">Publicacoes oficiais</div>
+                  <h5 class="mb-0">Diario Oficial e editais</h5>
+                </div>
+                <div class="card-body portal-list-body">
+                  <article class="portal-list-item portal-list-item--cool" *ngFor="let item of portal.publicacoesOficiais">
+                    <div class="portal-sitemap-item__code">{{ item.codigoReferencia }}</div>
+                    <h3>{{ item.titulo }}</h3>
+                    <div class="portal-meta-line">{{ item.areaEditorial }} · {{ formatDate(item.publicadoEm) }}</div>
+                    <p *ngIf="item.resumo != null">{{ item.resumo }}</p>
+                  </article>
+                </div>
+              </article>
+            </aside>
+          </div>
+        </div>
+
+        <section class="card border-0 shadow-sm runtime-card mt-4" *ngIf="possuiSessaoAtiva || erroRuntime != null">
+          <div class="card-header bg-transparent d-sm-flex align-items-center justify-content-between gap-3">
+            <div>
+              <div class="portal-section-label">Runtime publicado</div>
+              <h5 class="mb-0">Execucao ponta a ponta</h5>
+            </div>
+            <button type="button" class="btn btn-outline-secondary btn-sm" *ngIf="possuiSessaoAtiva" (click)="encerrarSessaoVisual()">Fechar</button>
+          </div>
+
+          <div class="card-body">
+            <div class="alert alert-danger mb-4" *ngIf="erroRuntime != null">{{ erroRuntime }}</div>
+
+            <div *ngIf="estadoRuntime != null">
+              <div class="portal-meta-line mb-4">Sessao {{ estadoRuntime!.idSessao }} · Status {{ estadoRuntime!.status.label }}</div>
+
+              <article class="portal-runtime-step" *ngIf="noApresentacaoAtual != null">
+                <h3>{{ noApresentacaoAtual!.rotulo }}</h3>
+                <p *ngIf="noApresentacaoAtual!.descricao != null">{{ noApresentacaoAtual!.descricao }}</p>
+                <div class="portal-runtime-richtext">
+                  <p *ngFor="let bloco of blocosApresentacao">{{ conteudoBloco(bloco) }}</p>
+                </div>
+                <button type="button" class="btn btn-primary btn-sm" (click)="avancarSessao()" [disabled]="runtimeCarregando">
+                  {{ runtimeCarregando ? 'Avancando...' : 'Continuar' }}
+                </button>
+              </article>
+
+              <article class="portal-runtime-step" *ngIf="noFormularioAtual != null">
+                <h3>{{ noFormularioAtual!.rotulo }}</h3>
+                <p *ngIf="noFormularioAtual!.descricao != null">{{ noFormularioAtual!.descricao }}</p>
+
+                <div class="portal-runtime-form">
+                  <div class="portal-runtime-field" *ngFor="let pergunta of noFormularioAtual!.perguntas">
+                    <label>{{ pergunta.rotulo }}</label>
+                    <small *ngIf="pergunta.descricao != null">{{ pergunta.descricao }}</small>
+
+                    <select #campoSelect class="form-select" *ngIf="perguntaEhSelecao(pergunta)" (change)="atualizarRespostaTexto(pergunta.campo, campoSelect.value)">
+                      <option value="">Selecione</option>
+                      <option *ngFor="let opcao of pergunta.opcoes" [value]="opcao.valor" [selected]="valorCampoAtual(pergunta.campo) == opcao.valor">
+                        {{ opcao.rotulo }}
+                      </option>
+                    </select>
+
+                    <textarea #campoLongo class="form-control" *ngIf="perguntaEhTextoLongo(pergunta)" (input)="atualizarRespostaTexto(pergunta.campo, campoLongo.value)">{{ valorCampoAtual(pergunta.campo) ?? '' }}</textarea>
+
+                    <label class="portal-runtime-checkbox" *ngIf="perguntaEhBooleano(pergunta)">
+                      <input #campoCheck type="checkbox" [checked]="campoMarcado(pergunta.campo)" (change)="atualizarRespostaMarcacao(pergunta.campo, campoCheck.checked)" />
+                      Confirmar
+                    </label>
+
+                    <input #campoInput class="form-control" *ngIf="!perguntaEhSelecao(pergunta) && !perguntaEhTextoLongo(pergunta) && !perguntaEhBooleano(pergunta)" [type]="tipoInputPergunta(pergunta)" [value]="valorCampoAtual(pergunta.campo) ?? ''" (input)="atualizarRespostaTexto(pergunta.campo, campoInput.value)" />
+                  </div>
+                </div>
+
+                <button type="button" class="btn btn-primary btn-sm mt-3" (click)="avancarSessao()" [disabled]="runtimeCarregando">
+                  {{ runtimeCarregando ? 'Enviando...' : 'Enviar etapa' }}
+                </button>
+              </article>
+
+              <article class="portal-runtime-step" *ngIf="noConteudoAtual != null">
+                <h3>{{ noConteudoAtual!.rotulo }}</h3>
+                <pre class="runtime-json">{{ resultadoIntegracaoFormatado() }}</pre>
+                <button type="button" class="btn btn-primary btn-sm" *ngIf="!runtimeConcluido" (click)="avancarSessao()" [disabled]="runtimeCarregando">
+                  {{ runtimeCarregando ? 'Avancando...' : 'Continuar' }}
+                </button>
+              </article>
+
+              <article class="portal-runtime-step portal-runtime-step--success" *ngIf="runtimeConcluido && registroSubmissaoAtual != null">
+                <h3>Submissao concluida</h3>
+                <p>Protocolo gerado com sucesso para o servico executado.</p>
+                <div class="portal-protocol-final-card">
+                  <strong>{{ registroSubmissaoAtual!.numeroProtocolo }}</strong>
+                  <span>{{ formatDate(registroSubmissaoAtual!.criadoEm) }}</span>
+                </div>
+                <button type="button" class="btn btn-outline-primary btn-sm mt-3" (click)="acompanharRegistroAtual()" [disabled]="consultaProtocoloCarregando">
+                  {{ consultaProtocoloCarregando ? 'Atualizando protocolo...' : 'Acompanhar protocolo no portal' }}
+                </button>
+                <pre class="runtime-json mt-4">{{ registroSubmissaoFormatado() }}</pre>
+              </article>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+</div>

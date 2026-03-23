@@ -1,0 +1,100 @@
+$accent-color: #0c83ff;
+$text-color: #1f2937;
+$width: 300px;
+$font-size: 0.85em;
+$background-color: white;
+//$border-color: #ddd;
+
+.dropdown-collection {
+    //width: $width;
+    position: relative;
+    //margin-right: 8px;
+}
+
+/*.dropdown-button {
+    color: #1f2937;
+    background-color: #fff; 
+    position: relative;
+    padding: 0.5rem 2.625rem 0.5rem 0.875rem;
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1.5715;
+    border-radius: 0.375rem;
+    border: 1px solid #D1D5DB;
+    box-shadow: 0 0 0 0 transparent;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23374151' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+   
+    background-size: 16px 12px;
+    background-position: right 0.875rem center;
+    background-repeat: no-repeat;   
+    width: 100%;
+
+    &:focus {
+        border-color: #0c83ff;
+        outline: 0;
+        box-shadow: 0 0 0 0 transparent, 0 0 0 0.125rem rgba(12, 131, 255, 0.25);
+    }
+}*/
+
+.dropdown-value {
+    display: block;
+    font-weight: 400;
+    //display: table-cell;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    text-align: start;
+}
+
+.dropdown-values {
+    display: block;
+    font-weight: 400;
+    text-align: start;
+    overflow: auto;
+
+    .badge {
+        // display: block;
+        min-width: fit-content;
+    }
+}
+
+
+.dropdown-container {
+    display: none;
+    //background: $background-color;
+    //border-radius: 0.375rem;
+    //border: 1px solid #D1D5DB;
+    //box-shadow: 3px 10px 15px -1px rgb(0 0 0 / 30%);
+
+    ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        min-height: 25px;
+        height: fit-content;
+        width: 100%;
+        display: block;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .dropdown-item {
+        padding: 4px 16px;
+        cursor: pointer;
+        font-weight: 400;
+        white-space: break-spaces;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        hyphens: auto;
+
+        &:hover {
+            background: $accent-color;
+            color: white;
+        }
+    }
+
+    &.dropdown-open {
+        display: block;
+    }
+}

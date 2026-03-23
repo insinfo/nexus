@@ -1,0 +1,5 @@
+.rf-panel {
+  position: absolute;
+  z-index: 7;
+  max-width: min(320px, calc(100% - 2rem));
+}

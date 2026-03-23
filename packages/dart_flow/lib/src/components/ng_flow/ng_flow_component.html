@@ -1,0 +1,174 @@
+<div
+  #viewportHost
+  class="rf-shell"
+  role="application"
+  aria-roledescription="Fluxo interativo"
+  [attr.aria-label]="'React Flow canvas'"
+  [attr.aria-describedby]="'rf-a11y-desc'"
+  tabindex="0"
+  (wheel)="onWheel($event)"
+  (keydown)="onShellKeyDown($event)"
+  (keyup)="onShellKeyUp($event)"
+  (mousedown)="onPaneMouseDown($event)">
+  <div id="rf-a11y-desc" class="rf-visually-hidden">{{ accessibilityDescription }}</div>
+  <ng-content select="rf-background"></ng-content>
+
+  <div *ngIf="hasSelectionRect" class="rf-selection" [attr.style]="selectionRectStyle"></div>
+
+  <svg class="rf-edge-layer">
+    <defs>
+      <marker id="rf-marker-arrowclosed" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="12" markerHeight="12" orient="auto-start-reverse">
+        <path d="M0,0 L12,6 L0,12 z" fill="currentColor"></path>
+      </marker>
+      <marker id="rf-marker-arrow" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="12" markerHeight="12" orient="auto-start-reverse">
+        <path d="M1,1 L11,6 L1,11" fill="none" stroke="currentColor" stroke-width="1.75"></path>
+      </marker>
+    </defs>
+
+    <g [attr.transform]="svgTransform">
+      <path
+        *ngIf="hasConnectionPreview || hasReconnectPreview"
+        class="rf-edge rf-edge--preview"
+        [attr.d]="previewPath">
+      </path>
+
+      <g *ngFor="let edge of visibleEdges; let index = index; trackBy: trackByEdgeId" class="rf-edge-group">
+        <path
+          class="rf-edge__interaction"
+          [attr.d]="edgePath(edge)"
+          [attr.stroke-width]="edgeInteractionWidth(edge)"
+          [attr.tabindex]="edgeTabIndexAttr(edge, index)"
+          [attr.aria-label]="edgeAriaLabel(edge)"
+          role="button"
+          (focus)="onEdgeFocus(edge, index)"
+          (keydown)="onEdgeKeyDown($event, edge, index)"
+          (click)="onEdgeClick(edge, $event)">
+        </path>
+        <path
+          class="rf-edge"
+          [class.is-selected]="edge.selected"
+          [class.is-animated]="edge.animated"
+          [attr.d]="edgePath(edge)"
+          [attr.marker-start]="markerStart(edge)"
+          [attr.marker-end]="markerEnd(edge)"
+          (click)="onEdgeClick(edge, $event)">
+        </path>
+        <text
+          *ngIf="shouldRenderEdgeLabel(edge)"
+          class="rf-edge__label"
+          [attr.x]="edgeLabelXAttr(edge)"
+          [attr.y]="edgeLabelYAttr(edge)">
+          {{ edgeLabelText(edge) }}
+        </text>
+      </g>
+    </g>
+  </svg>
+
+  <div
+    *ngIf="selectedEdge != null"
+    class="rf-edge-anchor rf-edge-anchor--source"
+    [attr.style]="selectedEdgeAnchorStyle(true)"
+    (mousedown)="onSelectedEdgeReconnectStart($event, true)">
+  </div>
+  <div
+    *ngIf="selectedEdge != null"
+    class="rf-edge-anchor rf-edge-anchor--target"
+    [attr.style]="selectedEdgeAnchorStyle(false)"
+    (mousedown)="onSelectedEdgeReconnectStart($event, false)">
+  </div>
+
+  <div class="rf-edge-component-layer">
+    <div
+      *ngFor="let edge of visibleEdges; trackBy: trackByEdgeId"
+      class="rf-edge-component"
+      [attr.style]="edgeComponentStyle(edge)">
+      <rf-dynamic-edge-host
+        *ngIf="hasDynamicEdgeComponent(edge) && edgeRenderContext(edge) != null"
+        [factory]="edgeComponentFactory(edge)"
+        [context]="edgeRenderContext(edge)!">
+      </rf-dynamic-edge-host>
+    </div>
+  </div>
+
+  <div class="rf-node-layer" [style.transform]="viewportTransform">
+    <article
+      *ngFor="let node of visibleNodes; let index = index; trackBy: trackByNodeId"
+      class="rf-node"
+      [class.is-selected]="node.selected"
+      [class.is-dragging]="node.dragging"
+      [attr.data-type]="node.type ?? 'default'"
+      [attr.aria-label]="node.ariaLabel ?? node.label"
+      [attr.aria-selected]="nodeAriaSelected(node)"
+      [attr.tabindex]="nodeTabIndexAttr(node, index)"
+      role="button"
+      [attr.style]="nodeStyle(node)"
+      (focus)="onNodeFocus(node, index)"
+      (keydown)="onNodeKeyDown($event, node, index)"
+      (mousedown)="onNodeMouseDown($event, node)"
+      (click)="onNodeClick(node)">
+      <span
+        *ngFor="let handle of targetHandlesForNode(node); trackBy: trackByHandle"
+        [class]="handleClass(handle.position, false)"
+        [class.is-connection-target]="isConnectionSource(node)"
+        [class.rf-node__handle--custom]="handleUsesExplicitCoordinates(handle)"
+        [attr.data-handle-id]="handle.id"
+        [attr.style]="handleStyle(handle)"
+        (mouseup)="onTargetHandleMouseUp($event, node, handle)"
+        (click)="onHandleClick($event, node, false, handle)"></span>
+      <rf-dynamic-node-host
+        *ngIf="hasDynamicNodeComponent(node)"
+        class="rf-node__body rf-node__body--dynamic"
+        [factory]="nodeComponentFactory(node)"
+        [context]="nodeRenderContext(node)">
+      </rf-dynamic-node-host>
+      <div *ngIf="!hasDynamicNodeComponent(node) && !hasCustomNodeHtml(node)" class="rf-node__body">
+        <div class="rf-node__title">{{ nodeTitle(node) }}</div>
+        <div class="rf-node__subtitle">{{ nodeSubtitle(node) }}</div>
+      </div>
+      <div
+        *ngIf="!hasDynamicNodeComponent(node) && hasCustomNodeHtml(node)"
+        class="rf-node__body rf-node__body--custom"
+        [innerHtml]="nodeHtml(node)">
+      </div>
+      <span
+        *ngFor="let handle of sourceHandlesForNode(node); trackBy: trackByHandle"
+        [class]="handleClass(handle.position, true)"
+        [class.is-connection-source]="isConnectionSource(node, handle)"
+        [class.rf-node__handle--custom]="handleUsesExplicitCoordinates(handle)"
+        [attr.data-handle-id]="handle.id"
+        [attr.style]="handleStyle(handle)"
+        (mousedown)="onSourceHandleMouseDown($event, node, handle)"
+        (mouseup)="onSourceHandleMouseUp($event, node, handle)"
+        (click)="onHandleClick($event, node, true, handle)"></span>
+      <button
+        *ngIf="node.selected"
+        type="button"
+        class="rf-node__resizer"
+        [attr.style]="resizeHandleStyle(node)"
+        (mousedown)="onResizeHandleMouseDown($event, node)">
+      </button>
+    </article>
+  </div>
+
+  <div *ngIf="selectedNode != null" class="rf-toolbar rf-toolbar--node card shadow-sm border-0" [attr.style]="nodeToolbarStyle">
+    <button type="button" class="btn btn-light btn-sm" (click)="duplicateSelectedNode()">
+      <i class="ph ph-copy"></i>
+    </button>
+    <button type="button" class="btn btn-light btn-sm" (click)="deleteSelected()">
+      <i class="ph ph-trash"></i>
+    </button>
+  </div>
+
+  <div *ngIf="selectedEdge != null" class="rf-toolbar rf-toolbar--edge card shadow-sm border-0" [attr.style]="edgeToolbarStyle">
+    <button type="button" class="btn btn-light btn-sm" (click)="reverseSelectedEdge()">
+      <i class="ph ph-arrows-left-right"></i>
+    </button>
+    <button type="button" class="btn btn-light btn-sm" (click)="deleteSelected()">
+      <i class="ph ph-trash"></i>
+    </button>
+  </div>
+
+  <ng-content select="rf-panel"></ng-content>
+  <ng-content select="rf-controls"></ng-content>
+  <ng-content select="rf-minimap"></ng-content>
+</div>

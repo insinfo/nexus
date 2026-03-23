@@ -1,0 +1,25 @@
+<div
+  #minimapHost
+  class="rf-minimap card shadow-sm border-0"
+  (mousedown)="onMouseDown($event)"
+  (click)="onClick($event)">
+  <svg [attr.viewBox]="viewBox">
+    <rect
+      *ngFor="let node of nodes; trackBy: trackByNodeId"
+      [attr.x]="nodeX(node)"
+      [attr.y]="nodeY(node)"
+      [attr.width]="nodeWidth(node)"
+      [attr.height]="nodeHeight(node)"
+      rx="6"
+      ry="6"
+      [attr.fill]="node.selected ? '#0d6efd' : '#94a3b8'">
+    </rect>
+    <rect
+      class="rf-minimap__viewport"
+      [attr.x]="viewportRectX"
+      [attr.y]="viewportRectY"
+      [attr.width]="viewportRectWidth"
+      [attr.height]="viewportRectHeight">
+    </rect>
+  </svg>
+</div>

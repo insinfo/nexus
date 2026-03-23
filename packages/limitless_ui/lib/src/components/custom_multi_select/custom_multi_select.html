@@ -1,0 +1,25 @@
+<div class="dropdown-collection">
+    <button type="button"  #dropdownButton class="form-select dropdown-button" aria-haspopup="listbox"
+        aria-labelledby="dropdown-label" (click)="toggleDropdown()" (clickOutside)="closeDropdown()" tabindex="-1">
+
+        <span class="dropdown-value" *ngIf="selectedValues.isEmpty == true">{{ placeholder}}</span>
+
+        <span class="dropdown-values" *ngIf="selectedValues.isNotEmpty == true">
+            <span class="badge text-teal bg-teal bg-opacity-20 me-2" *ngFor="let selVal of selectedLabels">
+                {{ selVal }} 
+            </span>
+        </span>
+
+    </button>
+    <div #dropdownContainer class="dropdown-container dropdown-menu" role="listbox" aria-expanded="false"
+        [class.dropdown-open]="dropdownOpen">
+        <ul>
+            <!-- multiple -->
+            <li class="dropdown-item" *ngFor="let o of options" tabindex="0" (click)="onLiClickHandle($event,o)"
+                role="option" [hidden]="o.visible == false">
+                <input (click)="onCheckboxClickHandle($event,o)" [checked]="o.selected" class="form-check-input m-0 me-3" type="checkbox" tabindex="-1">
+                <span [innerHTML]="o.text"></span>
+            </li>
+        </ul>
+    </div>
+</div>

@@ -1,0 +1,29 @@
+.rf-handle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: #0d6efd;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px rgba(13, 110, 253, 0.25);
+}
+
+.rf-handle--left {
+  left: -6px;
+  top: calc(50% - 6px);
+}
+
+.rf-handle--top {
+  top: -6px;
+  left: calc(50% - 6px);
+}
+
+.rf-handle--right {
+  right: -6px;
+  top: calc(50% - 6px);
+}
+
+.rf-handle--bottom {
+  bottom: -6px;
+  left: calc(50% - 6px);
+}

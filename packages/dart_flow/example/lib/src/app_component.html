@@ -1,0 +1,68 @@
+<main class="demo-shell">
+  <section class="demo-hero card border-0 shadow-sm">
+    <div>
+      <div class="demo-kicker">AngularDart port</div>
+      <h1>React Flow para ngdart com API, viewport, arestas e overlays.</h1>
+      <p>
+        Esta base prioriza paridade arquitetural: tipos centrais, utilitarios de grafo,
+        viewport com pan/zoom, renderer de nos/arestas, toolbars, resizer,
+        selection rectangle e conexao interativa.
+      </p>
+    </div>
+
+    <div class="demo-actions">
+      <button type="button" class="btn btn-primary" (click)="addNode()">
+        <i class="ph ph-plus-circle me-2"></i>
+        Adicionar no
+      </button>
+      <button type="button" class="btn btn-light" (click)="resetGraph()">
+        <i class="ph ph-arrow-counter-clockwise me-2"></i>
+        Resetar
+      </button>
+    </div>
+  </section>
+
+  <section class="demo-canvas">
+    <ng-flow
+      [nodes]="nodes"
+      [edges]="edges"
+      [fitView]="true"
+      [selectionOnDrag]="true"
+      [keyboardA11y]="true"
+      [connectOnDrag]="true"
+      [connectOnClick]="true"
+      [autoAddConnectedEdge]="true"
+      [nodeComponentFactories]="nodeComponentFactories"
+      [edgeComponentFactories]="edgeComponentFactories"
+      [edgeTypePathBuilders]="edgeTypePathBuilders"
+      (connect)="onConnect($event)"
+      (reconnect)="onReconnect($event)"
+      (selectionChange)="onSelectionChange($event)">
+      <rf-background variant="dots"></rf-background>
+      <rf-panel position="top-left">
+        <div class="card border-0 shadow-sm demo-panel">
+          <div class="card-body">
+            <div class="demo-panel__eyebrow">API alinhada ao xyflow</div>
+            <strong>Componentes portados</strong>
+            <div class="small text-muted mt-2">
+              Conecte handles por clique ou drag, incluindo multiplos handles com ids,
+              use selecao por arraste, delete, duplicacao por tecla D, fit por F,
+              reconnect visual e resize no canto do no selecionado.
+            </div>
+          </div>
+        </div>
+      </rf-panel>
+      <rf-panel position="top-right">
+        <div class="card border-0 shadow-sm demo-panel demo-panel--log">
+          <div class="card-body">
+            <div class="demo-panel__eyebrow">Eventos</div>
+            <div *ngIf="eventLog.isEmpty" class="small text-muted">Nenhum evento ainda.</div>
+            <div *ngFor="let item of eventLog" class="demo-log-item">{{ item }}</div>
+          </div>
+        </div>
+      </rf-panel>
+      <rf-controls></rf-controls>
+      <rf-minimap></rf-minimap>
+    </ng-flow>
+  </section>
+</main>

@@ -1,0 +1,246 @@
+<section class="card border-0 shadow-sm panel-card editorial-shell">
+  <div class="panel-card__header editorial-shell__header">
+    <div>
+      <div class="eyebrow">Editorial</div>
+      <h2>CRUD institucional conectado ao backend</h2>
+    </div>
+
+    <div class="editorial-stats">
+      <div class="editorial-stat">
+        <span>Notícias</span>
+        <strong>{{ noticias.length }}</strong>
+      </div>
+      <div class="editorial-stat">
+        <span>Publicações</span>
+        <strong>{{ publicacoes.length }}</strong>
+      </div>
+      <div class="editorial-stat">
+        <span>Páginas</span>
+        <strong>{{ paginas.length }}</strong>
+      </div>
+    </div>
+  </div>
+
+  <nav class="editorial-tabs">
+    <button type="button" class="route-nav__link" [class.route-nav__link--active]="abaNoticiasAtiva" (click)="abrirAba('noticias')">Notícias</button>
+    <button type="button" class="route-nav__link" [class.route-nav__link--active]="abaPublicacoesAtiva" (click)="abrirAba('publicacoes')">Publicações oficiais</button>
+    <button type="button" class="route-nav__link" [class.route-nav__link--active]="abaPaginasAtiva" (click)="abrirAba('paginas')">Páginas institucionais</button>
+  </nav>
+
+  <div class="state-card" *ngIf="carregando">Carregando conteúdo editorial...</div>
+  <div class="state-card state-card--error" *ngIf="erro != null">{{ erro }}</div>
+  <div class="state-card editorial-state" *ngIf="mensagem != null && erro == null">{{ mensagem }}</div>
+
+  <div class="editorial-layout" *ngIf="!carregando && erro == null">
+    <section class="editorial-list">
+      <div class="editorial-list__header" *ngIf="abaNoticiasAtiva">
+        <h3>Notícias do portal</h3>
+        <button type="button" class="btn btn-outline-primary btn-sm" (click)="novaNoticia()">Nova notícia</button>
+      </div>
+
+      <div class="editorial-list__header" *ngIf="abaPublicacoesAtiva">
+        <h3>Publicações oficiais</h3>
+        <button type="button" class="btn btn-outline-primary btn-sm" (click)="novaPublicacao()">Nova publicação</button>
+      </div>
+
+      <div class="editorial-list__header" *ngIf="abaPaginasAtiva">
+        <h3>Páginas institucionais</h3>
+        <button type="button" class="btn btn-outline-primary btn-sm" (click)="novaPagina()">Nova página</button>
+      </div>
+
+      <article class="editorial-card" *ngFor="let item of noticias" [class.editorial-card--selected]="abaNoticiasAtiva && item.id == noticiaEmEdicao.id" [hidden]="!abaNoticiasAtiva">
+        <button type="button" class="editorial-card__button" (click)="editarNoticia(item)">
+          <div class="editorial-card__topline">
+            <strong>{{ item.titulo }}</strong>
+            <span class="badge" [class.bg-warning]="item.destaque" [class.text-dark]="item.destaque" *ngIf="item.destaque">Destaque</span>
+          </div>
+          <div class="editorial-card__meta">{{ item.categoria }} · {{ formatarDataHoraLocal(item.publicadoEm) }}</div>
+          <p>{{ item.resumo }}</p>
+        </button>
+        <div class="editorial-card__actions">
+          <button type="button" class="btn btn-link btn-sm" (click)="editarNoticia(item)">Editar</button>
+          <button type="button" class="btn btn-link btn-sm text-danger" (click)="excluirNoticia(item.id)" [disabled]="salvando">Excluir</button>
+        </div>
+      </article>
+
+      <article class="editorial-card" *ngFor="let item of publicacoes" [class.editorial-card--selected]="abaPublicacoesAtiva && item.id == publicacaoEmEdicao.id" [hidden]="!abaPublicacoesAtiva">
+        <button type="button" class="editorial-card__button" (click)="editarPublicacao(item)">
+          <div class="editorial-card__topline">
+            <strong>{{ item.titulo }}</strong>
+            <span class="badge {{ badgeStatusPublicacao(item.status) }}">{{ statusLabel(item.status) }}</span>
+          </div>
+          <div class="editorial-card__meta">{{ tipoPublicacaoLabel(item.tipo) }} · {{ item.areaEditorial }}</div>
+          <p>{{ item.codigoReferencia }}</p>
+        </button>
+        <div class="editorial-card__actions">
+          <button type="button" class="btn btn-link btn-sm" (click)="editarPublicacao(item)">Editar</button>
+          <button type="button" class="btn btn-link btn-sm text-danger" (click)="excluirPublicacao(item.id)" [disabled]="salvando">Excluir</button>
+        </div>
+      </article>
+
+      <article class="editorial-card" *ngFor="let item of paginas" [class.editorial-card--selected]="abaPaginasAtiva && item.id == paginaEmEdicao.id" [hidden]="!abaPaginasAtiva">
+        <button type="button" class="editorial-card__button" (click)="editarPagina(item)">
+          <div class="editorial-card__topline">
+            <strong>{{ item.titulo }}</strong>
+            <span class="badge {{ badgeStatusPublicacao(item.status) }}">{{ statusLabel(item.status) }}</span>
+          </div>
+          <div class="editorial-card__meta">{{ item.secao }} · {{ item.slug }}</div>
+          <p>{{ item.resumo ?? 'Sem resumo cadastrado.' }}</p>
+        </button>
+        <div class="editorial-card__actions">
+          <button type="button" class="btn btn-link btn-sm" (click)="editarPagina(item)">Editar</button>
+          <button type="button" class="btn btn-link btn-sm text-danger" (click)="excluirPagina(item.id)" [disabled]="salvando">Excluir</button>
+        </div>
+      </article>
+    </section>
+
+    <section class="editorial-form card border-0 shadow-sm">
+      <div *ngIf="abaNoticiasAtiva">
+        <div class="eyebrow">Formulário</div>
+        <h3>{{ editandoNoticia ? 'Editar notícia' : 'Nova notícia' }}</h3>
+
+        <div class="editor-panel editor-panel--inline">
+          <label class="editor-panel__label">Título</label>
+          <input #noticiaTitulo class="form-control" [value]="noticiaEmEdicao.titulo" (input)="noticiaEmEdicao.titulo = noticiaTitulo.value" />
+        </div>
+
+        <div class="editor-grid editorial-form__grid">
+          <div class="editor-panel editor-panel--inline">
+            <label class="editor-panel__label">Slug</label>
+            <input #noticiaSlug class="form-control" [value]="noticiaEmEdicao.slug" (input)="noticiaEmEdicao.slug = noticiaSlug.value" />
+          </div>
+
+          <div class="editor-panel editor-panel--inline">
+            <label class="editor-panel__label">Categoria</label>
+            <input #noticiaCategoria class="form-control" [value]="noticiaEmEdicao.categoria" (input)="noticiaEmEdicao.categoria = noticiaCategoria.value" />
+          </div>
+        </div>
+
+        <div class="editor-grid editorial-form__grid">
+          <div class="editor-panel editor-panel--inline">
+            <label class="editor-panel__label">Publicação</label>
+            <input #noticiaPublicado class="form-control" type="datetime-local" [value]="formatarDataHoraLocal(noticiaEmEdicao.publicadoEm)" (change)="noticiaEmEdicao.publicadoEm = DateTime.parse(noticiaPublicado.value)" />
+          </div>
+
+          <div class="editor-panel editor-panel--inline">
+            <label class="editor-panel__label">Imagem</label>
+            <input #noticiaImagem class="form-control" [value]="noticiaEmEdicao.urlImagem ?? ''" (input)="noticiaEmEdicao.urlImagem = noticiaImagem.value.isEmpty ? null : noticiaImagem.value" />
+          </div>
+        </div>
+
+        <label class="inspector-checkbox mt-3">
+          <input #noticiaDestaque type="checkbox" [checked]="noticiaEmEdicao.destaque" (change)="noticiaEmEdicao.destaque = noticiaDestaque.checked == true" />
+          Exibir como destaque na home pública
+        </label>
+
+        <div class="editor-panel mt-3">
+          <label class="editor-panel__label">Resumo</label>
+          <textarea #noticiaResumo class="form-control inspector-textarea" (input)="noticiaEmEdicao.resumo = noticiaResumo.value">{{ noticiaEmEdicao.resumo }}</textarea>
+        </div>
+
+        <div class="editorial-form__actions">
+          <button type="button" class="btn btn-outline-secondary" (click)="novaNoticia()" [disabled]="salvando">Limpar</button>
+          <button type="button" class="btn btn-primary" (click)="salvarNoticia()" [disabled]="salvando">
+            {{ salvando ? 'Salvando...' : 'Salvar notícia' }}
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="abaPublicacoesAtiva">
+        <div class="eyebrow">Formulário</div>
+        <h3>{{ editandoPublicacao ? 'Editar publicação oficial' : 'Nova publicação oficial' }}</h3>
+
+        <div class="editor-panel editor-panel--inline">
+          <label class="editor-panel__label">Título</label>
+          <input #publicacaoTitulo class="form-control" [value]="publicacaoEmEdicao.titulo" (input)="publicacaoEmEdicao.titulo = publicacaoTitulo.value" />
+        </div>
+
+        <div class="editor-grid editorial-form__grid">
+          <div class="editor-panel editor-panel--inline">
+            <label class="editor-panel__label">Tipo</label>
+            <select #publicacaoTipo class="form-select" (change)="publicacaoEmEdicao.tipo = TipoPublicacao.parse(publicacaoTipo.value)">
+              <option *ngFor="let tipo of TipoPublicacao.values" [value]="tipo.val" [selected]="publicacaoEmEdicao.tipo == tipo">{{ tipo.label }}</option>
+            </select>
+          </div>
+
+          <div class="editor-panel editor-panel--inline">
+            <label class="editor-panel__label">Status</label>
+            <select #publicacaoStatus class="form-select" (change)="publicacaoEmEdicao.status = StatusPublicacao.parse(publicacaoStatus.value)">
+              <option *ngFor="let status of StatusPublicacao.values" [value]="status.val" [selected]="publicacaoEmEdicao.status == status">{{ status.label }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="editor-grid editorial-form__grid">
+          <div class="editor-panel editor-panel--inline">
+            <label class="editor-panel__label">Código de referência</label>
+            <input #publicacaoCodigo class="form-control" [value]="publicacaoEmEdicao.codigoReferencia" (input)="publicacaoEmEdicao.codigoReferencia = publicacaoCodigo.value" />
+          </div>
+
+          <div class="editor-panel editor-panel--inline">
+            <label class="editor-panel__label">Área editorial</label>
+            <input #publicacaoArea class="form-control" [value]="publicacaoEmEdicao.areaEditorial" (input)="publicacaoEmEdicao.areaEditorial = publicacaoArea.value" />
+          </div>
+        </div>
+
+        <div class="editor-panel editor-panel--inline mt-3">
+          <label class="editor-panel__label">Publicação</label>
+          <input #publicacaoPublicado class="form-control" type="datetime-local" [value]="formatarDataHoraLocal(publicacaoEmEdicao.publicadoEm)" (change)="publicacaoEmEdicao.publicadoEm = DateTime.parse(publicacaoPublicado.value)" />
+        </div>
+
+        <div class="editor-panel mt-3">
+          <label class="editor-panel__label">Resumo</label>
+          <textarea #publicacaoResumo class="form-control inspector-textarea" (input)="publicacaoEmEdicao.resumo = publicacaoResumo.value.isEmpty ? null : publicacaoResumo.value">{{ publicacaoEmEdicao.resumo ?? '' }}</textarea>
+        </div>
+
+        <div class="editorial-form__actions">
+          <button type="button" class="btn btn-outline-secondary" (click)="novaPublicacao()" [disabled]="salvando">Limpar</button>
+          <button type="button" class="btn btn-primary" (click)="salvarPublicacao()" [disabled]="salvando">
+            {{ salvando ? 'Salvando...' : 'Salvar publicação' }}
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="abaPaginasAtiva">
+        <div class="eyebrow">Formulário</div>
+        <h3>{{ editandoPagina ? 'Editar página institucional' : 'Nova página institucional' }}</h3>
+
+        <div class="editor-panel editor-panel--inline">
+          <label class="editor-panel__label">Título</label>
+          <input #paginaTitulo class="form-control" [value]="paginaEmEdicao.titulo" (input)="paginaEmEdicao.titulo = paginaTitulo.value" />
+        </div>
+
+        <div class="editor-grid editorial-form__grid">
+          <div class="editor-panel editor-panel--inline">
+            <label class="editor-panel__label">Slug</label>
+            <input #paginaSlug class="form-control" [value]="paginaEmEdicao.slug" (input)="paginaEmEdicao.slug = paginaSlug.value" />
+          </div>
+
+          <div class="editor-panel editor-panel--inline">
+            <label class="editor-panel__label">Seção</label>
+            <input #paginaSecao class="form-control" [value]="paginaEmEdicao.secao" (input)="paginaEmEdicao.secao = paginaSecao.value" />
+          </div>
+        </div>
+
+        <div class="editor-panel editor-panel--inline mt-3">
+          <label class="editor-panel__label">Status</label>
+          <select #paginaStatus class="form-select" (change)="paginaEmEdicao.status = StatusPublicacao.parse(paginaStatus.value)">
+            <option *ngFor="let status of StatusPublicacao.values" [value]="status.val" [selected]="paginaEmEdicao.status == status">{{ status.label }}</option>
+          </select>
+        </div>
+
+        <div class="editor-panel mt-3">
+          <label class="editor-panel__label">Resumo</label>
+          <textarea #paginaResumo class="form-control inspector-textarea" (input)="paginaEmEdicao.resumo = paginaResumo.value.isEmpty ? null : paginaResumo.value">{{ paginaEmEdicao.resumo ?? '' }}</textarea>
+        </div>
+
+        <div class="editorial-form__actions">
+          <button type="button" class="btn btn-outline-secondary" (click)="novaPagina()" [disabled]="salvando">Limpar</button>
+          <button type="button" class="btn btn-primary" (click)="salvarPagina()" [disabled]="salvando">
+            {{ salvando ? 'Salvando...' : 'Salvar página' }}
+          </button>
+        </div>
+      </div>
+    </section>
+  </div>
+</section>

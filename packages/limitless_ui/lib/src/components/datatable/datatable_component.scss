@@ -1,0 +1,38 @@
+.hide {
+    display: none; 
+}
+.dataTable thead .sorting:not([class*="sorting_asc"]):not([class*="sorting_desc"])::before {
+    -webkit-transform: translateY(-20%);
+    transform: translateY(-20%);
+}
+
+.dataTable thead .sorting:not(.sorting_desc)::before,
+.dataTable thead .sorting_asc_disabled::before {
+    content: "\e9fe";
+}
+
+.dataTable thead .sorting:not([class*="sorting_asc"]):not([class*="sorting_desc"])::after {
+    -webkit-transform: translateY(-80%);
+    transform: translateY(-80%);
+}
+
+.dataTable thead .sorting:not(.sorting_asc)::after,
+.dataTable thead .sorting_desc_disabled::after {
+    content: "\ea01";
+}
+
+
+.datatable-scroll {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.table-light td {
+    box-shadow: none !important;
+}
+
+// Defines the first column width when the checkbox is visible.
+.datatable-first-col {
+    width: 60px;
+    cursor: auto;
+}

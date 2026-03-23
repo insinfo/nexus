@@ -1,0 +1,6 @@
+<div class="br-currency-input">
+    <span *ngIf="prefix.isNotEmpty" class="br-currency-input__prefix">{{prefix}}</span>
+    <input #inputElement type="text" [attr.placeholder]="placeholder" [disabled]="disabled" [required]="required"
+        [class]="resolvedInputClass" inputmode="decimal" autocomplete="off" [value]="displayValue"
+        (focus)="handleInputFocus()" (input)="handleInput(inputElement.value ?? '')" (blur)="handleInputBlur()">
+</div>
