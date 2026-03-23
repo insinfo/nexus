@@ -1,0 +1,26 @@
+<div class="row">
+    <div class="col-md-4 mb-3 mb-md-0" *ngIf="services.isNotEmpty">
+        <label class="form-label">Serviço</label>
+        <select #serviceSelect class="form-select" (change)="serviceChanged(serviceSelect.value ?? '')">
+            <option *ngFor="let item of services" [value]="item.id" [selected]="item.id == selectedServiceId">
+                {{ item.nome }}
+            </option>
+        </select>
+    </div>
+    <div class="col-md-4 mb-3 mb-md-0" *ngIf="versions.isNotEmpty">
+        <label class="form-label">Versão</label>
+        <select #versionSelect class="form-select" (change)="versionChanged(versionSelect.value ?? '')">
+            <option *ngFor="let item of versions" [value]="item.id" [selected]="item.id == selectedVersionId">
+                v{{ item.versao }} · {{ item.status.label }}
+            </option>
+        </select>
+    </div>
+    <div class="col-md-4" *ngIf="selectedVersion != null && selectedVersion!.fluxos.isNotEmpty">
+        <label class="form-label">Fluxo</label>
+        <select #flowSelect class="form-select" (change)="flowChanged(flowSelect.value ?? '')">
+            <option *ngFor="let item of selectedVersion!.fluxos" [value]="item.id" [selected]="item.id == selectedFlowId">
+                {{ item.chave }}
+            </option>
+        </select>
+    </div>
+</div>

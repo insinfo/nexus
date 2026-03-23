@@ -1,0 +1,11 @@
+<div class="ng-flow-wrapper" style="height: 600px; width: 100%; border: 1px solid #ddd; position: relative;">
+    <ng-flow [nodes]="nodes"
+             [edges]="edges"
+             (nodesChange)="handleNodesChanged($event)"
+             (edgesChange)="handleEdgesChanged($event)"
+             (selectionChange)="handleSelectionChanged($event)">
+        <rf-background [variant]="'dots'" [gap]="20"></rf-background>
+        <rf-controls></rf-controls>
+        <rf-minimap></rf-minimap>
+    </ng-flow>
+</div>

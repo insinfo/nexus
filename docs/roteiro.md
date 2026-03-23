@@ -18,7 +18,7 @@ nexus/
 
 Substituir sistemas sazonais e isolados por um motor único de serviços versionados, com workflow declarativo, runtime tipado, builder visual baseado em dart_flow e governança institucional.
 
-O Nexus é inspirado tanto no Colab, usado aqui como referência em `../referencias/colab`, quanto no WordPress, pela combinação entre flexibilidade, extensibilidade e capacidade de operar experiências públicas e administrativas sobre uma base única. A proposta é entregar à Prefeitura um portal de serviços poderoso, configurável e evolutivo, sem depender de um sistema novo para cada necessidade.
+O Nexus é inspirado tanto no Colab, usado aqui como referência em `C:\MyDartProjects\nexus\packages\dart_flow\referencias\colab`, quanto no WordPress, pela combinação entre flexibilidade, extensibilidade e capacidade de operar experiências públicas e administrativas sobre uma base única. A proposta é entregar à Prefeitura um portal de serviços poderoso, configurável e evolutivo, sem depender de um sistema novo para cada necessidade.
 
 Entre os sistemas que o Nexus pretende substituir estão:
 
@@ -165,6 +165,8 @@ https://www.riodasostras.rj.gov.br/cdn/Vendor/limitless/4.0/bs5/template/html/la
 nunca deixe uma pagina angulardart ficar grande de mais subdivida em varias paginas ou componentes menores mais tambem não é para criar milhares de paginas com menos de 100 linhas ou seja uma pagina com menos de 2000 linhas é aceitavel ou seja tem que ter um meio termo
 não usar comando dart format
 use sempre o comando dart analyze 
+
+outra regra vital no frontend nãu use data-bs-toggle="collapse" faça assim [attr.data-bs-toggle]="'collapse'"
  
 ## Casos de uso prioritários
 

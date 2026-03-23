@@ -1,0 +1,75 @@
+<div class="row g-0 h-100 overflow-hidden">
+    <!-- Barra Lateral de Navegação de Fluxos (Opcional, ou embutida no seletor) -->
+    
+    <!-- Área Central: Toolbar + Canvas -->
+    <div class="col d-flex flex-column border-end bg-white">
+        <!-- Toolbar Superior -->
+        <div class="navbar navbar-expand-lg navbar-light border-bottom px-3 py-2 bg-white sticky-top">
+            <div class="d-flex align-items-center w-100">
+                <div class="me-3">
+                    <button type="button" class="btn btn-light" (click)="voltarDashboard()">
+                        <i class="ph-arrow-left me-2"></i>
+                        Dashboard
+                    </button>
+                </div>
+
+                <div class="flex-grow-1">
+                    <seletor-servico 
+                        [services]="services"
+                        [versions]="builderVersions"
+                        [selectedVersion]="versaoSelecionada"
+                        [selectedServiceId]="selectedBuilderServiceId"
+                        [selectedVersionId]="selectedBuilderVersionId"
+                        [selectedFlowId]="selectedBuilderFlowId"
+                        (onServiceChange)="onBuilderServiceChanged($event)"
+                        (onVersionChange)="onBuilderVersionChanged($event)"
+                        (onFlowChange)="onBuilderFlowChanged($event)">
+                    </seletor-servico>
+                </div>
+
+                <div class="ms-3 d-flex gap-2">
+                    <button type="button" class="btn btn-outline-primary" [disabled]="validationLoading" (click)="validarFluxo()">
+                        <i class="ph-check-circle me-2"></i>
+                        Validar
+                    </button>
+                    <button type="button" class="btn btn-primary" [disabled]="saveDraftLoading" (click)="salvarRascunho()">
+                        <i class="ph-floppy-disk me-2"></i>
+                        Salvar Rascunho
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Área do Canvas -->
+        <div class="flex-grow-1 position-relative overflow-hidden bg-light">
+            <canvas-fluxo 
+                *ngIf="fluxoEmEdicao != null"
+                [nodes]="builderCanvasNodes"
+                [edges]="builderCanvasEdges"
+                (onNodesChange)="handleNodesChanged($event)"
+                (onSelectionChange)="handleCanvasSelectionChanged($event)">
+            </canvas-fluxo>
+
+            <div *ngIf="builderLoading" class="position-absolute top-50 start-50 translate-middle text-center">
+                <div class="spinner-border text-primary mb-2"></div>
+                <div class="text-muted">Carregando canvas...</div>
+            </div>
+
+            <div *ngIf="!builderLoading && fluxoEmEdicao == null" class="position-absolute top-50 start-50 translate-middle text-center">
+                <i class="ph-selection-all ph-3x text-muted mb-3"></i>
+                <h5 class="text-muted">Nenhum fluxo selecionado para edição</h5>
+                <p class="text-muted small">Escolha um serviço e versão na barra superior.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inspector (Painel Lateral Direito) -->
+    <div class="col-auto bg-white border-start" style="width: 380px;">
+        <inspetor-no 
+            [no]="noSelecionadoBuilder"
+            [aresta]="arestaSelecionadaBuilder"
+            (onChange)="handleNodeDataChanged()"
+            (onRemove)="removerElementoSelecionado()">
+        </inspetor-no>
+    </div>
+</div>

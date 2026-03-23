@@ -4,7 +4,7 @@ begin;
 -- Nao use banco temporario para validar alteracoes locais de schema; recrie o banco limpo.
 
 create extension if not exists unaccent schema pg_catalog;
-create extension if not exists pgcrypto schema public;
+--create extension if not exists pgcrypto schema public;
 
 -- =========================================================
 -- Seguranca, identidade e governanca

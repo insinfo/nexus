@@ -1,0 +1,64 @@
+<div class="card h-100 border-0 shadow-none">
+    <div class="card-header bg-light border-bottom">
+        <h6 class="mb-0">Propriedades</h6>
+    </div>
+
+    <div class="card-body" *ngIf="!temSelecao">
+        <div class="text-muted italic text-center py-4">
+            <i class="ph-selection ph-2x mb-2 d-block"></i>
+            Selecione um nó ou aresta no canvas para editar suas propriedades.
+        </div>
+    </div>
+
+    <div class="card-body overflow-auto" *ngIf="no != null">
+        <div class="mb-3">
+            <label class="form-label text-muted small text-uppercase fw-bold">ID do Nó</label>
+            <div class="form-control bg-light border-0 py-1">{{ no!.id }}</div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label text-muted small text-uppercase fw-bold">Tipo</label>
+            <div class="form-control bg-light border-0 py-1">
+                <span class="badge bg-primary bg-opacity-10 text-primary border-primary border">{{ tipoNoLabel }}</span>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="mb-3">
+            <label class="form-label">Rótulo / Nome</label>
+            <input type="text" class="form-control" [(ngModel)]="no!.dados.rotulo" (input)="notifyChange()">
+        </div>
+
+        <!-- Seção específica para Apresentação -->
+        <div *ngIf="no!.tipo == TipoNoFluxo.apresentacao">
+            <!-- Outras propriedades virão aqui -->
+            <p class="text-muted small">Configurações de apresentação...</p>
+        </div>
+
+        <!-- Seção específica para Condição -->
+        <div *ngIf="no!.tipo == TipoNoFluxo.condicao">
+            <div class="mb-3">
+                <label class="form-label">Expressão (Expression Language)</label>
+                <textarea class="form-control" rows="3" [(ngModel)]="dadosCond!.expressao" (input)="notifyChange()"></textarea>
+            </div>
+        </div>
+
+        <button type="button" class="btn btn-outline-danger btn-sm w-100 mt-4" (click)="remove()">
+            <i class="ph-trash me-2"></i>
+            Remover Nó
+        </button>
+    </div>
+
+    <div class="card-body" *ngIf="aresta != null">
+        <h6>Aresta: {{ aresta!.id }}</h6>
+        <div class="mb-3">
+            <label class="form-label">Rótulo</label>
+            <input type="text" class="form-control" [(ngModel)]="aresta!.rotulo" (input)="notifyChange()">
+        </div>
+        <button type="button" class="btn btn-outline-danger btn-sm w-100 mt-4" (click)="remove()">
+            <i class="ph-trash me-2"></i>
+            Remover Aresta
+        </button>
+    </div>
+</div>

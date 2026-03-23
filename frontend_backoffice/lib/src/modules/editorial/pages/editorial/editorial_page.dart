@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:html';
 
-import 'package:essential_core/essential_core.dart';
 import 'package:nexus_core/nexus_core.dart';
 import 'package:nexus_frontend_backoffice/nexus_frontend_backoffice.dart';
 
@@ -12,6 +11,25 @@ import 'package:nexus_frontend_backoffice/nexus_frontend_backoffice.dart';
   directives: <Object>[coreDirectives],
 )
 class EditorialPage implements OnInit {
+
+  Iterable<TipoPublicacao> get tiposPublicacaoDisponiveis => TipoPublicacao.values;
+  Iterable<StatusPublicacao> get statusPublicacaoDisponiveis => StatusPublicacao.values;
+
+  DateTime parseDateTime(String? val) {
+    if (val == null || val.isEmpty) return DateTime.now();
+    return DateTime.tryParse(val) ?? DateTime.now();
+  }
+
+  TipoPublicacao parseTipoPublicacao(String? val) {
+    if (val == null || val.isEmpty) return TipoPublicacao.editalPublico;
+    return TipoPublicacao.tryParse(val) ?? TipoPublicacao.editalPublico;
+  }
+
+  StatusPublicacao parseStatusPublicacao(String? val) {
+    if (val == null || val.isEmpty) return StatusPublicacao.rascunho;
+    return StatusPublicacao.tryParse(val) ?? StatusPublicacao.rascunho;
+  }
+
   EditorialPage();
 
   static const String _apiBaseUrl = 'http://127.0.0.1:8086/api/v1/editorial';

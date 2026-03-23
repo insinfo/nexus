@@ -4,4 +4,6 @@ abstract class DadosNoFluxo implements SerializeBase {
   DadosNoFluxo();
 
   String get tipoNo;
+  String get rotulo;
+  set rotulo(String value);
 }

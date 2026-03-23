@@ -1,3 +1,4 @@
+export 'src/exceptions/api_problem_exception.dart';
 export 'src/models/comum/enums_nexus.dart';
 export 'src/models/consulta/andamento_consulta_publica_protocolo.dart';
 export 'src/models/consulta/consulta_publica_protocolo.dart';

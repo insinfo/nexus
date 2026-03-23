@@ -1,731 +1,167 @@
-<main class="page-shell">
-  <nav class="route-nav card border-0 shadow-sm">
-    <button type="button" class="route-nav__link" [class.route-nav__link--active]="isServicesSection" (click)="navigateTo('servicos')">Serviços</button>
-    <button type="button" class="route-nav__link" [class.route-nav__link--active]="isBuilderSection" (click)="navigateTo('builder')">Builder</button>
-    <button type="button" class="route-nav__link" [class.route-nav__link--active]="isOperationSection" (click)="navigateTo('operacao')">Operação</button>
-    <button type="button" class="route-nav__link" [class.route-nav__link--active]="isEditorialSection" (click)="navigateTo('editorial')">Editorial</button>
-  </nav>
-
-  <section class="hero card border-0 shadow-sm overflow-hidden">
-    <div class="hero__content">
-      <div>
-        <div class="eyebrow">Nexus Backoffice</div>
-        <h1>{{ dashboard.titulo }}</h1>
-        <p>{{ dashboard.subtitulo }}</p>
-      </div>
-
-      <div class="hero__aside">
-        <div class="stat-chip">
-          <span class="stat-chip__label">Fluxos publicados</span>
-          <strong>{{ publishedFlowCount }}</strong>
-        </div>
-        <div class="stat-chip stat-chip--wide">
-          <span class="stat-chip__label">Canais ativos</span>
-          <strong>{{ publishedChannelLabel }}</strong>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="metric-grid">
-    <article class="metric-card card border-0 shadow-sm" *ngFor="let metric of dashboard.metricas">
-      <div class="metric-card__icon">
-        <i class="{{ metric.icone }}"></i>
-      </div>
-      <div>
-        <div class="metric-card__label">{{ metric.rotulo }}</div>
-        <div class="metric-card__value">{{ metric.valor }}</div>
-        <div class="metric-card__delta">{{ metric.rotuloDelta }}</div>
-      </div>
-    </article>
-  </section>
-
-  <section class="content-grid" *ngIf="isServicesSection">
-    <article class="card border-0 shadow-sm panel-card">
-      <div class="panel-card__header">
-        <div>
-          <div class="eyebrow">Catálogo</div>
-          <h2>Serviços conectados ao backend</h2>
-        </div>
-      </div>
-
-      <div class="state-card" *ngIf="servicesLoading">Carregando serviços...</div>
-      <div class="state-card state-card--error" *ngIf="servicesError != null">{{ servicesError }}</div>
-
-      <div class="service-catalog" *ngIf="!servicesLoading && servicesError == null">
-        <article class="service-catalog__item" *ngFor="let item of services">
-          <div class="service-catalog__topline">
-            <span class="service-catalog__code">{{ item.codigo }}</span>
-            <span class="badge bg-light text-body rounded-pill" *ngIf="item.versaoPublicada != null">
-              v{{ item.versaoPublicada }} publicada
-            </span>
-          </div>
-          <h3>{{ item.nome }}</h3>
-          <p>{{ item.descricao }}</p>
-          <div class="service-catalog__meta">
-            {{ item.categoria }} · {{ item.modoAcesso.label }}
-          </div>
-          <button type="button" class="btn btn-primary btn-sm mt-3" (click)="abrirBuilder(item.id)">
-            Abrir no builder
-          </button>
-        </article>
-      </div>
-    </article>
-
-    <aside class="sidebar-stack">
-      <article class="card border-0 shadow-sm panel-card panel-card--accent">
-        <div class="panel-card__header">
-          <div>
-            <div class="eyebrow">Integração</div>
-            <h2>Endpoints ativos</h2>
-          </div>
-        </div>
-
-        <ul class="endpoint-list">
-          <li><strong>GET</strong> /api/v1/servicos</li>
-          <li><strong>GET</strong> /api/v1/servicos/&lt;id&gt;</li>
-          <li><strong>GET</strong> /api/v1/servicos/&lt;id&gt;/versoes</li>
-          <li><strong>GET</strong> /api/v1/servicos/&lt;id&gt;/fluxos</li>
-        </ul>
-      </article>
-
-      <article class="card border-0 shadow-sm panel-card">
-        <div class="panel-card__header">
-          <div>
-            <div class="eyebrow">Próximo passo</div>
-            <h2>Leitura relacional</h2>
-          </div>
-        </div>
-
-        <p class="service-summary">
-          Catálogo e builder agora recebem o formulário reconstruído prioritariamente pelas tabelas relacionais do schema Nexus.
-        </p>
-      </article>
-    </aside>
-  </section>
-
-  <section class="content-grid content-grid--builder" *ngIf="isBuilderSection">
-    <article class="card border-0 shadow-sm panel-card">
-      <div class="panel-card__header">
-        <div>
-          <div class="eyebrow">Builder</div>
-          <h2>Canvas visual do fluxo</h2>
-        </div>
-      </div>
-
-      <div class="builder-toolbar" *ngIf="services.isNotEmpty">
-        <label class="builder-toolbar__label" for="builder-service-select">Serviço</label>
-        <select id="builder-service-select" #serviceSelect class="form-select builder-toolbar__select" (change)="onBuilderServiceChanged(serviceSelect.value)">
-          <option *ngFor="let item of services" [value]="item.id" [selected]="item.id == selectedBuilderServiceId">
-            {{ item.nome }}
-          </option>
-        </select>
-
-        <label class="builder-toolbar__label" for="builder-version-select" *ngIf="builderVersions.isNotEmpty">Versão</label>
-        <select id="builder-version-select" #versionSelect class="form-select builder-toolbar__select" (change)="onBuilderVersionChanged(versionSelect.value)" *ngIf="builderVersions.isNotEmpty">
-          <option *ngFor="let item of builderVersions" [value]="item.id" [selected]="item.id == selectedBuilderVersionId">
-            v{{ item.versao }} · {{ item.status.label }}
-          </option>
-        </select>
-
-        <label class="builder-toolbar__label" for="builder-flow-select" *ngIf="versaoSelecionada != null && versaoSelecionada!.fluxos.isNotEmpty">Fluxo</label>
-        <select id="builder-flow-select" #flowSelect class="form-select builder-toolbar__select" (change)="onBuilderFlowChanged(flowSelect.value)" *ngIf="versaoSelecionada != null && versaoSelecionada!.fluxos.isNotEmpty">
-          <option *ngFor="let item of versaoSelecionada!.fluxos" [value]="item.id" [selected]="item.id == selectedBuilderFlowId">
-            {{ item.chave }}
-          </option>
-        </select>
-      </div>
-
-      <div class="state-card" *ngIf="builderLoading">Carregando dados do builder...</div>
-      <div class="state-card state-card--error" *ngIf="builderError != null">{{ builderError }}</div>
-
-      <div *ngIf="!builderLoading && builderError == null && builderService != null && fluxoEmEdicao != null">
-        <article class="builder-service card border-0">
-          <div class="eyebrow">Serviço selecionado</div>
-          <h3>{{ builderService!.metadados.nome }}</h3>
-          <p>{{ builderService!.metadados.descricao }}</p>
-        </article>
-
-        <div class="version-grid">
-          <article class="version-card" *ngFor="let version of builderVersions">
-            <div class="version-card__topline">
-              <strong>Versão {{ version.versao }}</strong>
-              <span class="badge bg-light text-body rounded-pill">{{ version.status.label }}</span>
-            </div>
-            <div class="version-card__meta">{{ version.quantidadeFluxos }} fluxos · {{ version.criadoEm.toIso8601String().substring(0, 10) }}</div>
-            <p *ngIf="version.notas != null">{{ version.notas }}</p>
-            <button type="button" class="btn btn-outline-success btn-sm mt-3" *ngIf="versaoPodeSerPublicada(version)" (click)="selecionarEPublicarVersao(version.id)" [disabled]="publishVersionLoading || saveDraftLoading || previewLoading || validationLoading">
-              {{ publishVersionLoading && selectedBuilderVersionId == version.id ? 'Publicando...' : 'Publicar versão' }}
-            </button>
-          </article>
-        </div>
-
-        <div class="flow-grid">
-          <article class="flow-card" *ngFor="let flow of builderFlows">
-            <div class="flow-card__topline">
-              <strong>{{ flow.chave }}</strong>
-              <span class="badge bg-primary rounded-pill">{{ flow.tipo.label }}</span>
-            </div>
-            <div class="flow-card__stats">{{ flow.quantidadeNos }} nós · {{ flow.quantidadeArestas }} arestas</div>
-          </article>
-        </div>
-
-        <article class="builder-editor card border-0">
-          <div class="builder-editor__header">
-            <div>
-              <div class="eyebrow">Edição visual conectada</div>
-              <h3>{{ fluxoEmEdicao!.chave }}</h3>
-            </div>
-            <div class="builder-editor__actions">
-              <button type="button" class="btn btn-outline-primary btn-sm" (click)="validarFluxoAtual()" [disabled]="validationLoading || previewLoading || saveDraftLoading">
-                {{ validationLoading ? 'Validando...' : 'Validar fluxo' }}
-              </button>
-              <button type="button" class="btn btn-outline-secondary btn-sm" (click)="preVisualizarFluxoAtual()" [disabled]="previewLoading || validationLoading || saveDraftLoading">
-                {{ previewLoading ? 'Executando...' : 'Pré-visualizar' }}
-              </button>
-              <button type="button" class="btn btn-primary btn-sm" (click)="salvarRascunhoAtual()" [disabled]="saveDraftLoading || validationLoading || previewLoading">
-                {{ saveDraftLoading ? 'Salvando...' : 'Salvar rascunho' }}
-              </button>
-              <button type="button" class="btn btn-success btn-sm" (click)="publicarVersaoAtual()" [disabled]="publishVersionLoading || saveDraftLoading || validationLoading || previewLoading || selectedBuilderVersionId == null">
-                {{ publishVersionLoading ? 'Publicando...' : 'Publicar versão' }}
-              </button>
-            </div>
-          </div>
-
-          <div class="flow-meta-grid">
-            <div class="editor-panel editor-panel--inline">
-              <label class="editor-panel__label" for="flow-key">Chave do fluxo</label>
-              <input id="flow-key" #flowKeyInput class="form-control" [value]="fluxoEmEdicao!.chave" (input)="atualizarChaveFluxoEmEdicao(flowKeyInput.value)" />
-            </div>
-
-            <div class="editor-panel editor-panel--inline">
-              <label class="editor-panel__label" for="flow-type">Tipo do fluxo</label>
-              <select id="flow-type" #flowTypeSelect class="form-select" (change)="atualizarTipoFluxoEmEdicao(flowTypeSelect.value)">
-                <option *ngFor="let tipo of TipoFluxo.values" [value]="tipo.val" [selected]="fluxoEmEdicao!.tipo == tipo">
-                  {{ tipo.label }}
-                </option>
-              </select>
-            </div>
-          </div>
-
-          <div class="builder-layout">
-            <section class="builder-canvas-panel">
-              <div class="canvas-toolbar">
-                <button type="button" class="btn btn-light btn-sm" *ngFor="let tipo of tiposNosDisponiveis" (click)="adicionarNoAoFluxo(tipo.val)">
-                  + {{ tipoNoLabel(tipo) }}
-                </button>
-              </div>
-
-              <section class="builder-canvas card border-0 shadow-sm">
-                <ng-flow
-                  [nodes]="builderCanvasNodes"
-                  [edges]="builderCanvasEdges"
-                  [fitView]="true"
-                  [selectionOnDrag]="true"
-                  [keyboardA11y]="true"
-                  [connectOnDrag]="true"
-                  [connectOnClick]="true"
-                  [autoAddConnectedEdge]="true"
-                  [nodeTitleBuilder]="nodeTitleCanvas"
-                  [nodeSubtitleBuilder]="nodeSubtitleCanvas"
-                  (nodesChange)="onCanvasNodesChanged($event)"
-                  (edgesChange)="onCanvasEdgesChanged($event)"
-                  (selectionChange)="onCanvasSelectionChanged($event)">
-                  <rf-background variant="dots"></rf-background>
-                  <rf-panel position="top-left">
-                    <div class="canvas-help card border-0 shadow-sm">
-                      <div class="eyebrow">Canvas</div>
-                      <strong>Arraste, conecte e selecione</strong>
-                      <div class="small text-muted mt-2">
-                        A posição dos nós, as conexões e o formulário tipado ficam sincronizados com o fluxo do core.
-                      </div>
-                    </div>
-                  </rf-panel>
-                  <rf-controls></rf-controls>
-                  <rf-minimap></rf-minimap>
-                </ng-flow>
-              </section>
-            </section>
-
-            <aside class="builder-inspector">
-              <article class="inspector-card card border-0 shadow-sm" *ngIf="noSelecionadoBuilder != null">
-                <div class="eyebrow">Nó selecionado</div>
-                <h4>{{ tipoNoLabel(noSelecionadoBuilder!.tipo) }}</h4>
-
-                <div class="editor-panel editor-panel--inline">
-                  <label class="editor-panel__label">Identificador</label>
-                  <input class="form-control" [value]="noSelecionadoBuilder!.id" readonly />
-                </div>
-
-                <div class="editor-panel editor-panel--inline">
-                  <label class="editor-panel__label" for="node-label">Rótulo</label>
-                  <input id="node-label" #nodeLabelInput class="form-control" [value]="noSelecionadoBuilder!.dados.toMap()['rotulo'] ?? ''" (input)="atualizarRotuloNoSelecionado(nodeLabelInput.value)" />
-                </div>
-
-                <div class="editor-panel" *ngIf="dadosApresentacaoSelecionado != null">
-                  <label class="editor-panel__label" for="node-presentation">Texto principal</label>
-                  <textarea id="node-presentation" #apresentacaoTexto class="form-control inspector-textarea" (input)="atualizarConteudoApresentacao(apresentacaoTexto.value)">{{ conteudoApresentacaoTexto }}</textarea>
-                </div>
-
-                <div class="editor-panel" *ngIf="dadosCondicaoSelecionado != null">
-                  <label class="editor-panel__label" for="node-expression">Expressão JSON</label>
-                  <textarea id="node-expression" #condicaoExpr class="form-control inspector-textarea" (input)="atualizarExpressaoCondicao(condicaoExpr.value)">{{ dadosCondicaoSelecionado!.expressao }}</textarea>
-
-                  <div class="flow-meta-grid mt-3">
-                    <div class="editor-panel editor-panel--inline">
-                      <label class="editor-panel__label">Handle verdadeiro</label>
-                      <input #handleVerdadeiro class="form-control" [value]="dadosCondicaoSelecionado!.handleVerdadeiro" (input)="atualizarHandleVerdadeiro(handleVerdadeiro.value)" />
-                    </div>
-                    <div class="editor-panel editor-panel--inline">
-                      <label class="editor-panel__label">Handle falso</label>
-                      <input #handleFalso class="form-control" [value]="dadosCondicaoSelecionado!.handleFalso" (input)="atualizarHandleFalso(handleFalso.value)" />
-                    </div>
-                  </div>
-                </div>
-
-                <div class="editor-panel" *ngIf="dadosConteudoSelecionado != null">
-                  <div class="flow-meta-grid">
-                    <div class="editor-panel editor-panel--inline">
-                      <label class="editor-panel__label">Método</label>
-                      <input #conteudoMetodo class="form-control" [value]="dadosConteudoSelecionado!.metodo" (input)="atualizarMetodoConteudo(conteudoMetodo.value)" />
-                    </div>
-                    <div class="editor-panel editor-panel--inline">
-                      <label class="editor-panel__label">Timeout (ms)</label>
-                      <input #conteudoTimeout class="form-control" [value]="dadosConteudoSelecionado!.timeoutMs?.toString() ?? ''" (input)="atualizarTimeoutConteudo(conteudoTimeout.value)" />
-                    </div>
-                  </div>
-
-                  <label class="editor-panel__label mt-3">URL</label>
-                  <input #conteudoUrl class="form-control" [value]="dadosConteudoSelecionado!.url" (input)="atualizarUrlConteudo(conteudoUrl.value)" />
-
-                  <label class="inspector-checkbox mt-3">
-                    <input #conteudoFinaliza type="checkbox" [checked]="dadosConteudoSelecionado!.finalizaFluxo" (change)="atualizarFinalizaFluxoConteudo(conteudoFinaliza.checked)" />
-                    Finaliza o fluxo ao concluir o nó
-                  </label>
-                </div>
-
-                <div class="editor-panel" *ngIf="dadosTarefaInternaSelecionado != null">
-                  <label class="editor-panel__label">Título da tarefa</label>
-                  <input #tarefaTitulo class="form-control" [value]="dadosTarefaInternaSelecionado!.titulo" (input)="atualizarTituloTarefaInterna(tarefaTitulo.value)" />
-
-                  <label class="editor-panel__label mt-3">Descrição operacional</label>
-                  <textarea #tarefaDescricao class="form-control inspector-textarea" (input)="atualizarDescricaoTarefaInterna(tarefaDescricao.value)">{{ dadosTarefaInternaSelecionado!.descricao ?? '' }}</textarea>
-
-                  <label class="editor-panel__label mt-3">Prioridade</label>
-                  <select #tarefaPrioridade class="form-select" (change)="atualizarPrioridadeTarefaInterna(tarefaPrioridade.value)">
-                    <option *ngFor="let prioridade of prioridadesTarefaInternaDisponiveis" [value]="prioridade" [selected]="dadosTarefaInternaSelecionado!.prioridade == prioridade">
-                      {{ capitalizeLabel(prioridade) }}
-                    </option>
-                  </select>
-                </div>
-
-                <div class="editor-panel" *ngIf="dadosAtualizacaoStatusSelecionado != null">
-                  <label class="editor-panel__label">Novo status da submissão</label>
-                  <select #statusInterno class="form-select" (change)="atualizarStatusNoInterno(statusInterno.value)">
-                    <option *ngFor="let status of statusSubmissaoDisponiveis" [value]="status" [selected]="dadosAtualizacaoStatusSelecionado!.novoStatus == status">
-                      {{ capitalizeLabel(status) }}
-                    </option>
-                  </select>
-
-                  <label class="editor-panel__label mt-3">Motivo</label>
-                  <textarea #motivoStatus class="form-control inspector-textarea" (input)="atualizarMotivoStatusNoInterno(motivoStatus.value)">{{ dadosAtualizacaoStatusSelecionado!.motivo ?? '' }}</textarea>
-                </div>
-
-                <div class="editor-panel" *ngIf="dadosPontuacaoSelecionado != null">
-                  <label class="editor-panel__label">ID público da versão de regras</label>
-                  <input #pontuacaoVersao class="form-control" [value]="dadosPontuacaoSelecionado!.idVersaoConjuntoRegras ?? ''" (input)="atualizarVersaoConjuntoRegrasPontuacao(pontuacaoVersao.value)" />
-
-                  <label class="editor-panel__label mt-3">Chave do resultado no contexto</label>
-                  <input #pontuacaoChave class="form-control" [value]="dadosPontuacaoSelecionado!.chaveResultado" (input)="atualizarChaveResultadoPontuacao(pontuacaoChave.value)" />
-                </div>
-
-                <div class="editor-panel" *ngIf="dadosClassificacaoSelecionado != null">
-                  <label class="editor-panel__label">ID público da versão de regras</label>
-                  <input #classificacaoVersao class="form-control" [value]="dadosClassificacaoSelecionado!.idVersaoConjuntoRegras ?? ''" (input)="atualizarVersaoConjuntoRegrasClassificacao(classificacaoVersao.value)" />
-
-                  <label class="editor-panel__label mt-3">Notas da execução</label>
-                  <textarea #classificacaoNotas class="form-control inspector-textarea" (input)="atualizarNotasClassificacao(classificacaoNotas.value)">{{ dadosClassificacaoSelecionado!.notas ?? '' }}</textarea>
-                </div>
-
-                <div class="form-builder" *ngIf="dadosFormularioSelecionado != null">
-                  <div class="form-builder__actions">
-                    <button type="button" class="btn btn-outline-primary btn-sm" (click)="adicionarSecaoFormulario()">Adicionar seção</button>
-                    <button type="button" class="btn btn-outline-primary btn-sm" (click)="adicionarPerguntaFormulario()">Adicionar campo</button>
-                  </div>
-
-                  <div class="inspector-block" *ngFor="let secao of dadosFormularioSelecionado!.secoes">
-                    <div class="inspector-block__header">
-                      <strong>{{ secao.titulo }}</strong>
-                      <button type="button" class="btn btn-link btn-sm text-danger" (click)="removerSecaoFormulario(secao.id)">Remover</button>
-                    </div>
-                    <input #secaoTitulo class="form-control mt-2" [value]="secao.titulo" (input)="atualizarSecaoFormularioTitulo(secao.id, secaoTitulo.value)" />
-                    <textarea #secaoDescricao class="form-control inspector-textarea mt-2" (input)="atualizarSecaoFormularioDescricao(secao.id, secaoDescricao.value)">{{ secao.descricao ?? '' }}</textarea>
-                    <label class="inspector-checkbox mt-2">
-                      <input #secaoRepetivel type="checkbox" [checked]="secao.repetivel" (change)="atualizarSecaoFormularioRepetivel(secao.id, secaoRepetivel.checked)" />
-                      Seção repetível
-                    </label>
-                  </div>
-
-                  <div class="inspector-block" *ngFor="let pergunta of dadosFormularioSelecionado!.perguntas; let indicePergunta = index">
-                    <div class="inspector-block__header">
-                      <strong>{{ pergunta.rotulo }}</strong>
-                      <button type="button" class="btn btn-link btn-sm text-danger" (click)="removerPerguntaFormulario(pergunta.id)">Remover</button>
-                    </div>
-
-                    <input #perguntaRotulo class="form-control mt-2" [value]="pergunta.rotulo" (input)="atualizarPerguntaRotulo(pergunta.id, perguntaRotulo.value)" />
-                    <input #perguntaCampo class="form-control mt-2" [value]="pergunta.campo" (input)="atualizarPerguntaCampo(pergunta.id, perguntaCampo.value)" />
-                    <textarea #perguntaDescricao class="form-control inspector-textarea mt-2" (input)="atualizarPerguntaDescricao(pergunta.id, perguntaDescricao.value)">{{ pergunta.descricao ?? '' }}</textarea>
-
-                    <div class="flow-meta-grid mt-2">
-                      <select #tipoCampoSelect class="form-select" (change)="atualizarPerguntaTipo(pergunta.id, tipoCampoSelect.value)">
-                        <option *ngFor="let tipoCampo of tiposCamposFormulario" [value]="tipoCampo.val" [selected]="pergunta.tipo == tipoCampo">
-                          {{ tipoCampoLabel(tipoCampo) }}
-                        </option>
-                      </select>
-
-                      <select #secaoCampoSelect class="form-select" (change)="atualizarPerguntaSecao(pergunta.id, secaoCampoSelect.value)">
-                        <option value="" [selected]="pergunta.idSecao == null">Sem seção</option>
-                        <option *ngFor="let secao of dadosFormularioSelecionado!.secoes" [value]="secao.id" [selected]="pergunta.idSecao == secao.id">
-                          {{ secao.titulo }}
-                        </option>
-                      </select>
-                    </div>
-
-                    <label class="inspector-checkbox mt-2">
-                      <input #campoObrigatorio type="checkbox" [checked]="pergunta.obrigatorio" (change)="atualizarPerguntaObrigatorio(pergunta.id, campoObrigatorio.checked)" />
-                      Campo obrigatório
-                    </label>
-
-                    <input #campoPlaceholder class="form-control mt-2" [value]="pergunta.placeholder ?? ''" (input)="atualizarPerguntaPlaceholder(pergunta.id, campoPlaceholder.value)" placeholder="Placeholder" />
-
-                    <div class="options-editor mt-2" *ngIf="perguntaTemOpcoes(pergunta)">
-                      <div class="inspector-block__header">
-                        <strong>Opções</strong>
-                        <button type="button" class="btn btn-outline-secondary btn-sm" (click)="adicionarOpcaoPergunta(pergunta.id)">Adicionar opção</button>
-                      </div>
-
-                      <div class="option-row" *ngFor="let opcao of pergunta.opcoes; let indiceOpcao = index">
-                        <input #opcaoValor class="form-control" [value]="opcao.valor" (input)="atualizarOpcaoPergunta(pergunta.id, indiceOpcao, 'valor', opcaoValor.value)" />
-                        <input #opcaoRotulo class="form-control" [value]="opcao.rotulo" (input)="atualizarOpcaoPergunta(pergunta.id, indiceOpcao, 'rotulo', opcaoRotulo.value)" />
-                        <button type="button" class="btn btn-link text-danger" (click)="removerOpcaoPergunta(pergunta.id, indiceOpcao)">Excluir</button>
-                      </div>
-                    </div>
-
-                    <div class="nested-editor mt-3">
-                      <div class="nested-editor__header">
-                        <strong>Validações</strong>
-                        <button type="button" class="btn btn-outline-secondary btn-sm" (click)="adicionarValidacaoPergunta(pergunta.id)">Adicionar validação</button>
-                      </div>
-
-                      <div class="nested-editor__item" *ngFor="let validacao of pergunta.validacoes; let indiceValidacao = index">
-                        <div class="flow-meta-grid">
-                          <div class="editor-panel editor-panel--inline">
-                            <label class="editor-panel__label">Tipo</label>
-                            <input #tipoValidacao class="form-control" [value]="validacao.tipo" (input)="atualizarValidacaoPerguntaTipo(pergunta.id, indiceValidacao, tipoValidacao.value)" />
-                          </div>
-                          <div class="editor-panel editor-panel--inline">
-                            <label class="editor-panel__label">Mensagem</label>
-                            <input #mensagemValidacao class="form-control" [value]="validacao.mensagem ?? ''" (input)="atualizarValidacaoPerguntaMensagem(pergunta.id, indiceValidacao, mensagemValidacao.value)" />
-                          </div>
-                        </div>
-                        <label class="editor-panel__label mt-2">Configuração JSON</label>
-                        <textarea #configValidacao class="editor-panel__textarea editor-panel__textarea--nested" (change)="atualizarValidacaoPerguntaConfiguracao(pergunta.id, indiceValidacao, configValidacao.value)">{{ validacaoConfiguracaoFormatada(validacao) }}</textarea>
-                        <button type="button" class="btn btn-link btn-sm text-danger px-0" (click)="removerValidacaoPergunta(pergunta.id, indiceValidacao)">Remover validação</button>
-                      </div>
-                    </div>
-
-                    <div class="nested-editor mt-3">
-                      <div class="nested-editor__header">
-                        <strong>Regras de visibilidade</strong>
-                        <button type="button" class="btn btn-outline-secondary btn-sm" (click)="adicionarRegraVisibilidadePergunta(pergunta.id)">Adicionar regra</button>
-                      </div>
-
-                      <div class="nested-editor__item" *ngFor="let regra of pergunta.regrasVisibilidade; let indiceRegra = index">
-                        <label class="editor-panel__label">Expressão JSON</label>
-                        <textarea #regraVisibilidade class="editor-panel__textarea editor-panel__textarea--nested" (change)="atualizarRegraVisibilidadePergunta(pergunta.id, indiceRegra, regraVisibilidade.value)">{{ regraVisibilidadeFormatada(regra) }}</textarea>
-                        <button type="button" class="btn btn-link btn-sm text-danger px-0" (click)="removerRegraVisibilidadePergunta(pergunta.id, indiceRegra)">Remover regra</button>
-                      </div>
-                    </div>
-
-                    <div class="nested-editor mt-3">
-                      <div class="nested-editor__header">
-                        <strong>Cálculos</strong>
-                        <button type="button" class="btn btn-outline-secondary btn-sm" (click)="adicionarCalculoPergunta(pergunta.id)">Adicionar cálculo</button>
-                      </div>
-
-                      <div class="nested-editor__item" *ngFor="let calculo of pergunta.calculos; let indiceCalculo = index">
-                        <div class="editor-panel editor-panel--inline">
-                          <label class="editor-panel__label">Escopo de destino</label>
-                          <input #escopoCalculo class="form-control" [value]="calculo.escopoDestino" (input)="atualizarCalculoPerguntaEscopo(pergunta.id, indiceCalculo, escopoCalculo.value)" />
-                        </div>
-                        <label class="editor-panel__label mt-2">Expressão JSON</label>
-                        <textarea #expressaoCalculo class="editor-panel__textarea editor-panel__textarea--nested" (change)="atualizarCalculoPerguntaExpressao(pergunta.id, indiceCalculo, expressaoCalculo.value)">{{ calculoExpressaoFormatada(calculo) }}</textarea>
-                        <button type="button" class="btn btn-link btn-sm text-danger px-0" (click)="removerCalculoPergunta(pergunta.id, indiceCalculo)">Remover cálculo</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </article>
-
-              <article class="inspector-card card border-0 shadow-sm" *ngIf="arestaSelecionadaBuilder != null && noSelecionadoBuilder == null">
-                <div class="eyebrow">Aresta selecionada</div>
-                <h4>{{ arestaSelecionadaBuilder!.id }}</h4>
-
-                <label class="editor-panel__label">Rótulo</label>
-                <input #arestaRotulo class="form-control" [value]="arestaSelecionadaBuilder!.rotulo ?? ''" (input)="atualizarRotuloArestaSelecionada(arestaRotulo.value)" />
-
-                <label class="editor-panel__label mt-3">Handle de origem</label>
-                <input #arestaHandleOrigem class="form-control" [value]="arestaSelecionadaBuilder!.handleOrigem ?? ''" (input)="atualizarHandleOrigemArestaSelecionada(arestaHandleOrigem.value)" />
-
-                <label class="editor-panel__label mt-3">Handle de destino</label>
-                <input #arestaHandleDestino class="form-control" [value]="arestaSelecionadaBuilder!.handleDestino ?? ''" (input)="atualizarHandleDestinoArestaSelecionada(arestaHandleDestino.value)" />
-              </article>
-
-              <article class="inspector-card card border-0 shadow-sm" *ngIf="noSelecionadoBuilder == null && arestaSelecionadaBuilder == null">
-                <div class="eyebrow">Inspector</div>
-                <h4>Selecione um nó ou uma aresta</h4>
-                <p class="service-summary">
-                  Use o canvas para arrastar, conectar e selecionar elementos. O painel lateral exibe as propriedades editáveis do item selecionado.
-                </p>
-              </article>
-            </aside>
-          </div>
-
-          <div class="editor-grid">
-            <section class="editor-panel editor-panel--compact">
-              <label class="editor-panel__label" for="contexto-json">Contexto da pré-visualização</label>
-              <textarea id="contexto-json" #contextoJsonArea class="editor-panel__textarea editor-panel__textarea--small" [value]="contextoPreviewJson" (input)="onContextoPreviewChanged(contextoJsonArea.value)"></textarea>
-
-              <label class="editor-panel__label" for="respostas-json">Respostas simuladas</label>
-              <textarea id="respostas-json" #respostasJsonArea class="editor-panel__textarea editor-panel__textarea--small" [value]="respostasPreviewJson" (input)="onRespostasPreviewChanged(respostasJsonArea.value)"></textarea>
-            </section>
-
-            <section class="editor-panel editor-panel--compact">
-              <label class="editor-panel__label">Snapshot do fluxo</label>
-              <pre class="result-card__json">{{ fluxoSnapshotFormatado }}</pre>
-            </section>
-          </div>
-
-          <div class="editor-results">
-            <article class="result-card">
-              <div class="eyebrow">Validação</div>
-              <strong>{{ validationSummary }}</strong>
-              <p *ngIf="validationMessage != null">{{ validationMessage }}</p>
-              <ul class="result-list" *ngIf="validationResult != null && validationResult!.erros.isNotEmpty">
-                <li *ngFor="let erro of validationResult!.erros">{{ erro.mensagem }}</li>
-              </ul>
-            </article>
-
-            <article class="result-card">
-              <div class="eyebrow">Pré-visualização</div>
-              <strong>{{ previewSummary }}</strong>
-              <p *ngIf="previewError != null" class="result-card__error">{{ previewError }}</p>
-              <pre class="result-card__json">{{ previewPayloadFormatado }}</pre>
-            </article>
-
-            <article class="result-card">
-              <div class="eyebrow">Persistência</div>
-              <strong>Snapshot local do serviço</strong>
-              <p *ngIf="saveDraftMessage != null">{{ saveDraftMessage }}</p>
-              <p *ngIf="publishVersionMessage != null">{{ publishVersionMessage }}</p>
-              <pre class="result-card__json">{{ servicoPayloadFormatado }}</pre>
-            </article>
-          </div>
-        </article>
-      </div>
-    </article>
-
-    <aside class="sidebar-stack">
-      <article class="card border-0 shadow-sm panel-card">
-        <div class="panel-card__header">
-          <div>
-            <div class="eyebrow">Builder</div>
-            <h2>Inventário e endpoints</h2>
-          </div>
-        </div>
-
-        <div class="node-list">
-          <div class="node-row" *ngFor="let node of dashboard.nosBuilder">
-            <div>
-              <strong>{{ node.rotulo }}</strong>
-              <div class="node-row__meta">{{ node.tipo }}</div>
-            </div>
-            <span class="badge bg-primary rounded-pill">{{ node.quantidade }}</span>
-          </div>
-        </div>
-
-        <ul class="endpoint-list endpoint-list--tight mt-3">
-          <li><strong>POST</strong> /api/v1/editor/fluxos/validar</li>
-          <li><strong>POST</strong> /api/v1/editor/fluxos/pre-visualizar</li>
-          <li><strong>POST</strong> /api/v1/editor/servicos/salvar-rascunho</li>
-          <li><strong>POST</strong> /api/v1/editor/servicos/publicar-versao</li>
-        </ul>
-      </article>
-
-      <article class="card border-0 shadow-sm panel-card panel-card--accent" *ngIf="service != null">
-        <div class="panel-card__header">
-          <div>
-            <div class="eyebrow">Serviço piloto</div>
-            <h2>{{ service!.metadados.nome }}</h2>
-          </div>
-        </div>
-
-        <p class="service-summary">{{ service!.metadados.descricao }}</p>
-        <ul class="service-tags">
-          <li *ngFor="let tag of service!.metadados.etiquetas">{{ tag }}</li>
-        </ul>
-      </article>
-    </aside>
-  </section>
-
-  <section class="card border-0 shadow-sm panel-card" *ngIf="isOperationSection">
-    <div class="panel-card__header">
-      <div>
-        <div class="eyebrow">Operação</div>
-        <h2>Fila de trabalho institucional</h2>
-      </div>
-    </div>
-
-    <div class="state-card" *ngIf="operationLoading">Carregando fila institucional...</div>
-    <div class="state-card state-card--error" *ngIf="operationError != null">{{ operationError }}</div>
-    <div class="state-card" *ngIf="operationActionMessage != null">{{ operationActionMessage }}</div>
-
-    <div *ngIf="!operationLoading && operationError == null">
-      <datatable-component
-        [data]="workQueueTable"
-        [settings]="workQueueSettings"
-        [dataTableFilter]="workQueueFilters"
-        [gridMode]="false"
-      ></datatable-component>
-
-      <div class="operation-layout" *ngIf="operationSubmissions.isNotEmpty">
-        <section class="operation-list">
-          <article
-            class="operation-card"
-            *ngFor="let item of operationSubmissions"
-            [class.operation-card--selected]="selectedOperationSubmissionId == item.idSubmissao"
-          >
-            <button type="button" class="operation-card__button" (click)="selecionarSubmissaoOperacional(item)">
-              <div class="operation-card__topline">
-                <strong>{{ item.numeroProtocolo }}</strong>
-                <span class="badge bg-light text-body rounded-pill">{{ capitalizeLabel(item.status) }}</span>
-              </div>
-              <div class="operation-card__title">{{ item.nomeServico }}</div>
-              <div class="operation-card__meta">
-                {{ item.codigoServico }} · {{ item.pontuacaoFinal?.toString() ?? 'Sem pontuação' }}
-              </div>
-              <div class="operation-card__meta">
-                {{ item.elegivel == true ? 'Elegível' : (item.elegivel == false ? 'Inelegível' : 'Sem classificação') }} ·
-                {{ item.possuiTarefaAberta ? 'Tarefa aberta' : 'Sem tarefa aberta' }}
-              </div>
-            </button>
-          </article>
-        </section>
-
-        <aside class="operation-detail card border-0 shadow-sm" *ngIf="selectedOperationSubmission != null">
-          <div class="panel-card__header">
-            <div>
-              <div class="eyebrow">Submissão selecionada</div>
-              <h3>{{ selectedOperationSubmission!.numeroProtocolo }}</h3>
-            </div>
-            <span class="badge bg-primary rounded-pill">{{ capitalizeLabel(selectedOperationSubmission!.status) }}</span>
-          </div>
-
-          <div class="operation-meta-grid">
-            <div class="operation-stat">
-              <span>Serviço</span>
-              <strong>{{ selectedOperationSubmission!.nomeServico }}</strong>
-            </div>
-            <div class="operation-stat">
-              <span>Código público</span>
-              <strong>{{ selectedOperationSubmission!.codigoPublico }}</strong>
-            </div>
-            <div class="operation-stat">
-              <span>Pontuação</span>
-              <strong>{{ selectedOperationSubmission!.pontuacaoFinal?.toString() ?? 'Pendente' }}</strong>
-            </div>
-            <div class="operation-stat">
-              <span>Elegibilidade</span>
-              <strong>{{ selectedOperationSubmission!.elegivel == true ? 'Elegível' : (selectedOperationSubmission!.elegivel == false ? 'Inelegível' : 'Pendente') }}</strong>
-            </div>
-          </div>
-
-          <div class="builder-editor__actions mt-3">
-            <button
-              type="button"
-              class="btn btn-outline-primary btn-sm"
-              (click)="transicionarSubmissaoOperacional('em_analise', 'Triagem institucional iniciada no backoffice.')"
-              [disabled]="operationActionLoading"
-            >
-              Colocar em análise
-            </button>
-            <button
-              type="button"
-              class="btn btn-outline-success btn-sm"
-              (click)="transicionarSubmissaoOperacional('homologada', 'Resultado homologado pela operação interna.')"
-              [disabled]="operationActionLoading || selectedOperationSubmission!.elegivel != true"
-            >
-              Homologar
-            </button>
-            <button
-              type="button"
-              class="btn btn-outline-secondary btn-sm"
-              (click)="transicionarSubmissaoOperacional('arquivada', 'Encerramento administrativo da submissão.')"
-              [disabled]="operationActionLoading"
-            >
-              Arquivar
-            </button>
-          </div>
-
-          <div class="state-card mt-3" *ngIf="operationDetailLoading">Carregando detalhe operacional...</div>
-
-          <div class="operation-block" *ngIf="operationClassificationDetail != null">
-            <div class="eyebrow">Classificação auditável</div>
-            <p>
-              Pontuação final: <strong>{{ operationClassificationDetail!['pontuacao_final'] }}</strong>
-              · Posição: <strong>{{ operationClassificationDetail!['posicao_final'] ?? '-' }}</strong>
-            </p>
-          </div>
-
-          <div class="operation-block" *ngIf="operationTasks.isNotEmpty">
-            <div class="eyebrow">Tarefas internas</div>
-            <article class="operation-subcard" *ngFor="let tarefa of operationTasks">
-              <strong>{{ tarefa['titulo'] }}</strong>
-              <div class="operation-subcard__meta">{{ tarefa['status'] }} · {{ tarefa['prioridade'] }}</div>
-              <p *ngIf="tarefa['descricao'] != null">{{ tarefa['descricao'] }}</p>
-            </article>
-          </div>
-
-          <div class="operation-block" *ngIf="operationHistory.isNotEmpty">
-            <div class="eyebrow">Histórico de status</div>
-            <article class="operation-subcard" *ngFor="let historico of operationHistory">
-              <strong>{{ capitalizeLabel(historico['novo_status']?.toString() ?? '') }}</strong>
-              <div class="operation-subcard__meta">
-                {{ historico['status_anterior'] ?? 'Inicial' }} → {{ historico['novo_status'] }}
-              </div>
-              <p *ngIf="historico['motivo'] != null">{{ historico['motivo'] }}</p>
-            </article>
-          </div>
-        </aside>
-      </div>
-
-      <article class="card border-0 shadow-sm panel-card panel-card--accent mt-3" *ngIf="classificacaoResultados.isNotEmpty">
-        <div class="panel-card__header">
-          <div>
-            <div class="eyebrow">Ranking</div>
-            <h2>Resultados auditáveis da classificação</h2>
-          </div>
-        </div>
-
-        <datatable-component
-          [data]="rankingTable"
-          [settings]="rankingSettings"
-          [dataTableFilter]="rankingFilters"
-          [gridMode]="false"
-        ></datatable-component>
-      </article>
-    </div>
-  </section>
-
-  <editorial-page *ngIf="isEditorialSection"></editorial-page>
-</main>
+<!-- Main navbar -->
+<div class="navbar navbar-dark navbar-expand-lg navbar-static border-bottom border-bottom-white border-opacity-10">
+	<div class="container-fluid">
+		<div class="d-flex d-lg-none me-2">
+			<button type="button" class="navbar-toggler sidebar-mobile-main-toggle rounded-pill">
+				<i class="ph-list"></i>
+			</button>
+		</div>
+
+		<div class="navbar-brand flex-1 flex-lg-0">
+			<a [routerLink]="RoutePaths.dashboard.toUrl()" class="d-inline-flex align-items-center">
+				<img src="assets/images/logo_icon.svg" alt="">
+				<span class="d-none d-sm-inline-block ms-3 text-white fw-bold fs-5">Nexus Backoffice</span>
+			</a>
+		</div>
+
+		<ul class="nav flex-row">
+			<li class="nav-item d-lg-none">
+				<a href="#navbar_search" class="navbar-nav-link navbar-nav-link-icon rounded-pill" [attr.data-bs-toggle]="'collapse'">
+					<i class="ph-magnifying-glass"></i>
+				</a>
+			</li>
+
+			<li class="nav-item nav-item-dropdown-lg dropdown ms-lg-2">
+				<a href="#" class="navbar-nav-link align-items-center rounded-pill p-1" [attr.data-bs-toggle]="'dropdown'">
+					<div class="status-indicator-container">
+						<img src="assets/images/demo/users/face11.jpg" class="w-32px h-32px rounded-pill" alt="">
+						<span class="status-indicator bg-success"></span>
+					</div>
+					<span class="d-none d-lg-inline-block mx-lg-2">Backoffice User</span>
+				</a>
+			</li>
+		</ul>
+	</div>
+</div>
+<!-- /main navbar -->
+
+<!-- Page content -->
+<div class="page-content">
+
+	<!-- Main sidebar -->
+	<div class="sidebar sidebar-dark sidebar-main sidebar-expand-lg">
+
+		<!-- Sidebar content -->
+		<div class="sidebar-content">
+
+			<!-- Sidebar header -->
+			<div class="sidebar-section">
+				<div class="sidebar-section-body d-flex justify-content-center">
+					<h5 class="sidebar-resize-hide flex-grow-1 my-auto">Navegação</h5>
+
+					<div>
+						<button type="button" class="btn btn-flat-white btn-icon btn-sm rounded-pill border-transparent sidebar-control sidebar-main-resize d-none d-lg-inline-flex">
+							<i class="ph-arrows-left-right"></i>
+						</button>
+
+						<button type="button" class="btn btn-flat-white btn-icon btn-sm rounded-pill border-transparent sidebar-mobile-main-toggle d-lg-none">
+							<i class="ph-x"></i>
+						</button>
+					</div>
+				</div>
+			</div>
+			<!-- /sidebar header -->
+
+			<!-- Main navigation -->
+			<div class="sidebar-section">
+				<ul class="nav nav-sidebar" [attr.data-nav-type]="'accordion'">
+
+					<!-- Main -->
+					<li class="nav-item-header pt-0">
+						<div class="text-uppercase fs-sm lh-sm opacity-50 sidebar-resize-hide">Seções</div>
+						<i class="ph-dots-three sidebar-resize-show"></i>
+					</li>
+
+					<li class="nav-item">
+						<a [routerLink]="RoutePaths.dashboard.toUrl()" class="nav-link cursor-pointer" [class.active]="isRouteActive('dashboard')">
+							<i class="ph-house"></i>
+							<span>Dashboard & Serviços</span>
+						</a>
+					</li>
+					<li class="nav-item">
+						<a [routerLink]="RoutePaths.builder.toUrl()" class="nav-link cursor-pointer" [class.active]="isRouteActive('builder')">
+							<i class="ph-tree-structure"></i>
+							<span>Builder de Fluxos</span>
+						</a>
+					</li>
+					<li class="nav-item">
+						<a [routerLink]="RoutePaths.operacao.toUrl()" class="nav-link cursor-pointer" [class.active]="isRouteActive('operacao')">
+							<i class="ph-briefcase"></i>
+							<span>Operação Institucional</span>
+						</a>
+					</li>
+					<li class="nav-item">
+						<a [routerLink]="RoutePaths.editorial.toUrl()" class="nav-link cursor-pointer" [class.active]="isRouteActive('editorial')">
+							<i class="ph-newspaper"></i>
+							<span>Editorial de Conteúdo</span>
+						</a>
+					</li>
+				</ul>
+			</div>
+			<!-- /main navigation -->
+
+		</div>
+		<!-- /sidebar content -->
+		
+	</div>
+	<!-- /main sidebar -->
+
+
+	<!-- Main content -->
+	<div class="content-wrapper">
+
+		<!-- Inner content -->
+		<div class="content-inner">
+
+			<!-- Page header -->
+			<div class="page-header page-header-light shadow">
+				<div class="page-header-content d-lg-flex">
+					<div class="d-flex">
+						<h4 class="page-title mb-0">
+							{{ pageTitle }} - <span class="fw-normal">{{ pageSubtitle }}</span>
+						</h4>
+
+						<a href="#page_header" class="btn btn-light align-self-center collapsed d-lg-none border-transparent rounded-pill p-0 ms-auto" [attr.data-bs-toggle]="'collapse'">
+							<i class="ph-caret-down collapsible-indicator ph-sm m-1"></i>
+						</a>
+					</div>
+				</div>
+
+				<div class="page-header-content d-lg-flex border-top">
+					<div class="d-flex">
+						<div class="breadcrumb py-2">
+							<a [routerLink]="RoutePaths.dashboard.toUrl()" class="breadcrumb-item"><i class="ph-house"></i></a>
+							<a class="breadcrumb-item">Admin</a>
+							<span class="breadcrumb-item active">{{ pageTitle }}</span>
+						</div>
+
+						<a href="#breadcrumb_elements" class="btn btn-light align-self-center collapsed d-lg-none border-transparent rounded-pill p-0 ms-auto" [attr.data-bs-toggle]="'collapse'">
+							<i class="ph-caret-down collapsible-indicator ph-sm m-1"></i>
+						</a>
+					</div>
+				</div>
+			</div>
+			<!-- /page header -->
+
+			<!-- Content area -->
+			<div class="content">
+				<router-outlet [routes]="PagesRoutes.allPrivate"></router-outlet>
+			</div>
+			<!-- /content area -->
+
+			<!-- Footer -->
+			<div class="navbar navbar-sm navbar-footer border-top">
+				<div class="container-fluid">
+					<span>&copy; {{ todayYear }} <a href="#">Nexus Backoffice</a></span>
+				</div>
+			</div>
+			<!-- /footer -->
+
+		</div>
+		<!-- /inner content -->
+
+	</div>
+	<!-- /main content -->
+
+</div>
+<!-- /page content -->

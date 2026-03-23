@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'dart:io';
 import 'package:args/args.dart';
 import 'package:nexus_backend/src/shared/app_config.dart';
 import 'package:nexus_backend/src/shared/db_service.dart';
@@ -36,12 +36,11 @@ Future<void> main(List<String> arguments) async {
   } catch (e, s) {
     await db.execute('rollback');
     print('Falha ao aplicar seed institucional do Nexus: $e\n$s');
-    rethrow;
-  } finally {
-    if (!appConfig.dbUsePool) {
-      await db.disconnect();
-    }
+    await db.disconnect();
+    exit(1);
   }
+  await db.disconnect();
+  exit(0);
 }
 
 class _ContextoInstitucional {
@@ -195,6 +194,7 @@ Future<void> _seedClientesOidc(dynamic db) async {
       tiposRespostaSuportados: const <String>['code'],
       metodoAutenticacaoToken: 'none',
       ativo: true,
+      criadoEm: DateTime.now().toUtc(),
       atualizadoEm: DateTime.now().toUtc(),
     ),
   );
@@ -229,6 +229,7 @@ Future<void> _seedClientesOidc(dynamic db) async {
       tiposRespostaSuportados: const <String>['code'],
       metodoAutenticacaoToken: 'client_secret_post',
       ativo: true,
+      criadoEm: DateTime.now().toUtc(),
       atualizadoEm: DateTime.now().toUtc(),
     ),
   );

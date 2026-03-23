@@ -1,0 +1,57 @@
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Fila de trabalho institucional</h5>
+    </div>
+    
+    <div class="card-body" *ngIf="operationLoading">Carregando fila institucional...</div>
+    <div class="card-body text-danger" *ngIf="operationError != null">{{ operationError }}</div>
+    <div class="card-body text-success" *ngIf="operationActionMessage != null">{{ operationActionMessage }}</div>
+
+    <div class="card-body" *ngIf="!operationLoading && operationError == null">
+        <datatable-component
+            [data]="workQueueTable"
+            [settings]="workQueueSettings"
+            [dataTableFilter]="workQueueFilters"
+            [gridMode]="false"
+        ></datatable-component>
+
+        <div class="row mt-4" *ngIf="operationSubmissions.isNotEmpty">
+            <div class="col-lg-8">
+                <div class="row">
+                    <div class="col-md-6" *ngFor="let item of operationSubmissions">
+                        <div class="card card-body border" [class.border-primary]="selectedOperationSubmissionId == item.idSubmissao" (click)="selecionarSubmissaoOperacional(item)" style="cursor: pointer;">
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="fw-bold">{{ item.numeroProtocolo }}</span>
+                                <span class="badge bg-light text-body rounded-pill ms-auto">{{ capitalizeLabel(item.status) }}</span>
+                            </div>
+                            <h6 class="mb-1">{{ item.nomeServico }}</h6>
+                            <div class="text-muted small mb-2">
+                                {{ item.codigoServico }} · Pontuação: {{ item.pontuacaoFinal?.toString() ?? '-' }}
+                            </div>
+                            <div class="text-muted small">
+                                {{ item.elegivel == true ? 'Elegível' : (item.elegivel == false ? 'Inelegível' : 'Sem classificação') }} ·
+                                {{ item.possuiTarefaAberta ? 'Tarefa aberta' : 'Sem tarefa aberta' }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4" *ngIf="selectedOperationSubmission != null">
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h5 class="mb-3">{{ selectedOperationSubmission!.numeroProtocolo }}</h5>
+                        <div class="mb-3">
+                            <strong>Ações</strong>
+                            <div class="d-grid gap-2 mt-2">
+                                <button type="button" class="btn btn-outline-primary" (click)="transicionarSubmissaoOperacional('em_analise', 'Triagem institucional iniciada no backoffice.')" [disabled]="operationActionLoading">Colocar em análise</button>
+                                <button type="button" class="btn btn-outline-success" (click)="transicionarSubmissaoOperacional('homologada', 'Resultado homologado pela operação interna.')" [disabled]="operationActionLoading || selectedOperationSubmission!.elegivel != true">Homologar</button>
+                                <button type="button" class="btn btn-outline-secondary" (click)="transicionarSubmissaoOperacional('arquivada', 'Encerramento administrativo da submissão.')" [disabled]="operationActionLoading">Arquivar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

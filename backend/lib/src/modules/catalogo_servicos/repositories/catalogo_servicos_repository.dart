@@ -457,8 +457,8 @@ class CatalogoServicosRepository {
         id: row['chave_no'] as String,
         tipo: tipo,
         posicao: PosicaoXY(
-          x: (row['posicao_x'] as num).toDouble(),
-          y: (row['posicao_y'] as num).toDouble(),
+          x: double.parse(row['posicao_x'].toString()),
+          y: double.parse(row['posicao_y'].toString()),
         ),
         dados: tipo == TipoNoFluxo.formulario
             ? (formulariosPorNo[idNo] ??
@@ -467,10 +467,12 @@ class CatalogoServicosRepository {
                 ))
             : dadosNoFluxoFromMap(
                 tipo: tipo, mapa: JsonUtils.lerMapa(row['dados_json'])),
-        largura:
-            row['largura'] != null ? (row['largura'] as num).toDouble() : null,
-        altura:
-            row['altura'] != null ? (row['altura'] as num).toDouble() : null,
+        largura: row['largura'] != null
+            ? double.tryParse(row['largura'].toString())
+            : null,
+        altura: row['altura'] != null
+            ? double.tryParse(row['altura'].toString())
+            : null,
       );
     }).toList(growable: false);
   }

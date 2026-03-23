@@ -8,6 +8,7 @@ environment:
 dependencies:
   essential_core:
     path: ../packages/essential_core
+  http: any
   intl: any
   limitless_ui:
     path: ../packages/limitless_ui

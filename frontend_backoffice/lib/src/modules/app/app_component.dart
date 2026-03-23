@@ -1,5 +1,4 @@
 import 'package:nexus_frontend_backoffice/nexus_frontend_backoffice.dart';
-import 'package:nexus_frontend_backoffice/src/shared/routes/my_routes.dart';
 
 @Component(
   selector: 'app-root',

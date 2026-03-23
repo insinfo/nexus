@@ -1,0 +1,96 @@
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Central de Operação Nexus</h5>
+            </div>
+            <div class="card-body">
+                <p>Catálogo, builder visual, operação e publicação conectados ao backend.</p>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="card card-body">
+                            <div class="d-flex align-items-center">
+                                <i class="ph-stack ph-2x text-primary me-3"></i>
+                                <div>
+                                    <h6 class="mb-0 fw-semibold">{{ publishedFlowCount }}</h6>
+                                    <span class="text-muted">Serviços publicados</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="card card-body">
+                            <div class="d-flex align-items-center">
+                                <i class="ph-users ph-2x text-primary me-3"></i>
+                                <div>
+                                    <h6 class="mb-0 fw-semibold">{{ publishedChannelLabel }}</h6>
+                                    <span class="text-muted">Serviços cadastrados</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header d-flex align-items-center">
+                <h5 class="mb-0">Serviços conectados ao backend</h5>
+                <div class="ms-auto">
+                    <button type="button" class="btn btn-primary" (click)="navegarParaNovoServico()">
+                        <i class="ph-plus me-2"></i>
+                        Novo Serviço
+                    </button>
+                </div>
+            </div>
+
+            <div class="card-body" *ngIf="servicesLoading">Carregando serviços...</div>
+            <div class="card-body text-danger" *ngIf="servicesError != null">{{ servicesError }}</div>
+
+            <div class="card-body" *ngIf="!servicesLoading && servicesError == null">
+                <div class="alert alert-info" *ngIf="services.isEmpty">
+                    Nenhum serviço cadastrado ainda. Clique em <strong>Novo Serviço</strong> para começar.
+                </div>
+
+                <div class="row" *ngIf="services.isNotEmpty">
+                    <div class="col-md-6" *ngFor="let item of services">
+                        <div class="card card-body border">
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="fw-bold">{{ item.codigo }}</span>
+                                <span class="badge bg-light text-body rounded-pill ms-auto" *ngIf="item.versaoPublicada != null">v{{ item.versaoPublicada }}</span>
+                            </div>
+                            <h6 class="mb-1">{{ item.nome }}</h6>
+                            <p class="text-muted mb-3">{{ item.descricao }}</p>
+                            <div class="text-muted small mb-3">
+                                {{ item.categoria }} · {{ item.modoAcesso.label }}
+                            </div>
+                            <button type="button" class="btn btn-primary btn-sm w-100" (click)="abrirBuilder(item.id)">
+                                Abrir no builder
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card border-primary">
+            <div class="card-header text-primary bg-primary bg-opacity-10">
+                <h5 class="mb-0">Endpoints ativos</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2"><span class="badge bg-primary me-2">GET</span> /api/v1/servicos</li>
+                    <li class="mb-2"><span class="badge bg-primary me-2">GET</span> /api/v1/servicos/&lt;id&gt;</li>
+                    <li class="mb-2"><span class="badge bg-primary me-2">GET</span> /api/v1/servicos/&lt;id&gt;/versoes</li>
+                    <li><span class="badge bg-primary me-2">GET</span> /api/v1/servicos/&lt;id&gt;/fluxos</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
