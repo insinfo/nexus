@@ -2,26 +2,29 @@ import 'package:dart_flow/dart_flow.dart';
 import 'package:nexus_core/nexus_core.dart';
 
 List<FlowNode> mapearNosFluxoParaCanvas(List<NoFluxoDto> nos) {
-  return nos
-      .map(
-        (no) => FlowNode(
-          id: no.id,
-          type: no.tipo.val,
-          position: XYPosition(x: no.posicao.x, y: no.posicao.y),
-          width: no.largura ?? 220,
-          height: no.altura ?? _alturaNo(no),
-          sourcePosition: Position.right,
-          targetPosition: Position.left,
-          handles: _handlesParaNo(no),
-          data: <String, Object?>{
-            'label': _rotuloDoNo(no),
-            'subtitle': _subtituloDoNo(no),
-            'tipo_no': no.tipo.val,
-            'dados': no.dados.toMap(),
-          },
-        ),
-      )
-      .toList(growable: false);
+  return nos.map(
+    (no) {
+      final w = _larguraTipo(no.tipo);
+      final h = _alturaTipo(no.tipo);
+      final cy = h / 2;
+      return FlowNode(
+        id: no.id,
+        type: no.tipo.val,
+        position: XYPosition(x: no.posicao.x, y: no.posicao.y),
+        width: w,
+        height: h,
+        sourcePosition: Position.right,
+        targetPosition: Position.left,
+        handles: _handlesParaNo(no, w, cy),
+        data: <String, Object?>{
+          'label': _rotuloDoNo(no),
+          'subtitle': _subtituloDoNo(no),
+          'tipo_no': no.tipo.val,
+          'dados': no.dados.toMap(),
+        },
+      );
+    },
+  ).toList(growable: false);
 }
 
 List<FlowEdge> mapearArestasFluxoParaCanvas(List<ArestaFluxoDto> arestas) {
@@ -46,7 +49,7 @@ NoFluxoDto criarNoFluxoPadrao(TipoNoFluxo tipo, int indice) {
     id: chaveBase,
     tipo: tipo,
     posicao: PosicaoXY(x: 120 + (indice * 48), y: 120 + (indice * 28)),
-    largura: 220,
+    largura: _larguraTipo(tipo),
     altura: _alturaTipo(tipo),
     dados: _dadosPadrao(tipo, chaveBase),
   );
@@ -65,8 +68,8 @@ NoFluxoDto criarNoFluxoAPartirDoCanvas(FlowNode node, int indice) {
     id: node.id,
     tipo: tipo,
     posicao: PosicaoXY(x: node.position.x, y: node.position.y),
-    largura: node.width,
-    altura: node.height,
+    largura: _larguraTipo(tipo),
+    altura: _alturaTipo(tipo),
     dados: dadosNoFluxoFromMap(tipo: tipo, mapa: dados),
   );
 }
@@ -83,21 +86,12 @@ TipoNoFluxo _tipoNoDoCanvas(FlowNode node) {
   return TipoNoFluxo.parse(tipo);
 }
 
-double _alturaNo(NoFluxoDto no) {
-  return no.altura ?? _alturaTipo(no.tipo);
+double _larguraTipo(TipoNoFluxo tipo) {
+  return 176;
 }
 
 double _alturaTipo(TipoNoFluxo tipo) {
-  switch (tipo) {
-    case TipoNoFluxo.formulario:
-      return 88;
-    case TipoNoFluxo.condicao:
-      return 72;
-    case TipoNoFluxo.conteudoDinamico:
-      return 72;
-    default:
-      return 60;
-  }
+  return 56;
 }
 
 String _chavePadrao(TipoNoFluxo tipo, int indice) {
@@ -213,68 +207,60 @@ String _subtituloDoNo(NoFluxoDto no) {
   }
 }
 
-List<FlowHandle> _handlesParaNo(NoFluxoDto no) {
+List<FlowHandle> _handlesParaNo(NoFluxoDto no, double w, double cy) {
   switch (no.tipo) {
     case TipoNoFluxo.inicio:
-      return const <FlowHandle>[
+      return <FlowHandle>[
         FlowHandle(
           id: 'saida',
           type: HandleType.source,
           position: Position.right,
-          x: 220,
-          y: 30,
         ),
       ];
     case TipoNoFluxo.fim:
-      return const <FlowHandle>[
+      return <FlowHandle>[
         FlowHandle(
           id: 'entrada',
           type: HandleType.target,
           position: Position.left,
-          x: 0,
-          y: 30,
         ),
       ];
     case TipoNoFluxo.condicao:
       final dados = no.dados as DadosNoCondicao;
       return <FlowHandle>[
-        const FlowHandle(
+        FlowHandle(
           id: 'entrada',
           type: HandleType.target,
           position: Position.left,
-          x: 0,
-          y: 36,
+          x: -6,
+          y: cy - 6,
         ),
         FlowHandle(
           id: dados.handleVerdadeiro,
           type: HandleType.source,
           position: Position.right,
-          x: 220,
-          y: 22,
+          x: w - 6,
+          y: cy - 16,
         ),
         FlowHandle(
           id: dados.handleFalso,
           type: HandleType.source,
           position: Position.right,
-          x: 220,
-          y: 50,
+          x: w - 6,
+          y: cy + 4,
         ),
       ];
     default:
-      return const <FlowHandle>[
+      return <FlowHandle>[
         FlowHandle(
           id: 'entrada',
           type: HandleType.target,
           position: Position.left,
-          x: 0,
-          y: 30,
         ),
         FlowHandle(
           id: 'saida',
           type: HandleType.source,
           position: Position.right,
-          x: 220,
-          y: 30,
         ),
       ];
   }

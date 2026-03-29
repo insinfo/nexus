@@ -6,6 +6,7 @@ import 'package:nexus_frontend_backoffice/nexus_frontend_backoffice.dart';
 @Component(
   selector: 'inspetor-no',
   templateUrl: 'inspetor_no_component.html',
+  styleUrls: ['inspetor_no_component.css'],
   directives: [
     coreDirectives,
     formDirectives,

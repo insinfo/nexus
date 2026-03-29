@@ -2,7 +2,7 @@
 <div class="navbar navbar-dark navbar-expand-lg navbar-static border-bottom border-bottom-white border-opacity-10">
 	<div class="container-fluid">
 		<div class="d-flex d-lg-none me-2">
-			<button type="button" class="navbar-toggler sidebar-mobile-main-toggle rounded-pill">
+			<button type="button" class="navbar-toggler sidebar-mobile-main-toggle rounded-pill" (click)="toggleSidebarMobile()">
 				<i class="ph-list"></i>
 			</button>
 		</div>
@@ -39,7 +39,13 @@
 <div class="page-content">
 
 	<!-- Main sidebar -->
-	<div class="sidebar sidebar-dark sidebar-main sidebar-expand-lg">
+	<div
+		class="sidebar sidebar-dark sidebar-main sidebar-expand-lg"
+		[class.sidebar-main-resized]="isSidebarResized"
+		[class.sidebar-main-unfold]="isSidebarUnfold"
+		[class.sidebar-mobile-expanded]="isSidebarMobileExpanded"
+		(mouseenter)="onSidebarMouseEnter()"
+		(mouseleave)="onSidebarMouseLeave()">
 
 		<!-- Sidebar content -->
 		<div class="sidebar-content">
@@ -50,11 +56,11 @@
 					<h5 class="sidebar-resize-hide flex-grow-1 my-auto">Navegação</h5>
 
 					<div>
-						<button type="button" class="btn btn-flat-white btn-icon btn-sm rounded-pill border-transparent sidebar-control sidebar-main-resize d-none d-lg-inline-flex">
+						<button type="button" class="btn btn-flat-white btn-icon btn-sm rounded-pill border-transparent sidebar-control sidebar-main-resize d-none d-lg-inline-flex" (click)="toggleSidebarResize()">
 							<i class="ph-arrows-left-right"></i>
 						</button>
 
-						<button type="button" class="btn btn-flat-white btn-icon btn-sm rounded-pill border-transparent sidebar-mobile-main-toggle d-lg-none">
+						<button type="button" class="btn btn-flat-white btn-icon btn-sm rounded-pill border-transparent sidebar-mobile-main-toggle d-lg-none" (click)="toggleSidebarMobile()">
 							<i class="ph-x"></i>
 						</button>
 					</div>
@@ -112,37 +118,6 @@
 
 		<!-- Inner content -->
 		<div class="content-inner">
-
-			<!-- Page header -->
-			<div class="page-header page-header-light shadow">
-				<div class="page-header-content d-lg-flex">
-					<div class="d-flex">
-						<h4 class="page-title mb-0">
-							{{ pageTitle }} - <span class="fw-normal">{{ pageSubtitle }}</span>
-						</h4>
-
-						<a href="#page_header" class="btn btn-light align-self-center collapsed d-lg-none border-transparent rounded-pill p-0 ms-auto" [attr.data-bs-toggle]="'collapse'">
-							<i class="ph-caret-down collapsible-indicator ph-sm m-1"></i>
-						</a>
-					</div>
-				</div>
-
-				<div class="page-header-content d-lg-flex border-top">
-					<div class="d-flex">
-						<div class="breadcrumb py-2">
-							<a [routerLink]="RoutePaths.dashboard.toUrl()" class="breadcrumb-item"><i class="ph-house"></i></a>
-							<a class="breadcrumb-item">Admin</a>
-							<span class="breadcrumb-item active">{{ pageTitle }}</span>
-						</div>
-
-						<a href="#breadcrumb_elements" class="btn btn-light align-self-center collapsed d-lg-none border-transparent rounded-pill p-0 ms-auto" [attr.data-bs-toggle]="'collapse'">
-							<i class="ph-caret-down collapsible-indicator ph-sm m-1"></i>
-						</a>
-					</div>
-				</div>
-			</div>
-			<!-- /page header -->
-
 			<!-- Content area -->
 			<div class="content">
 				<router-outlet [routes]="PagesRoutes.allPrivate"></router-outlet>
@@ -150,7 +125,7 @@
 			<!-- /content area -->
 
 			<!-- Footer -->
-			<div class="navbar navbar-sm navbar-footer border-top">
+			<div *ngIf="exibirRodape" class="navbar navbar-sm navbar-footer border-top">
 				<div class="container-fluid">
 					<span>&copy; {{ todayYear }} <a href="#">Nexus Backoffice</a></span>
 				</div>

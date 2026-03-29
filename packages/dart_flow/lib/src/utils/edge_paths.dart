@@ -66,11 +66,26 @@ XYPosition getNodeConnectionPoint(
   Position position, {
   FlowHandle? handle,
 }) {
-  if (handle != null) {
-    return XYPosition(
-      x: node.position.x + handle.x + (handle.width / 2),
-      y: node.position.y + handle.y + (handle.height / 2),
-    );
+  final usaCoordenadasExplicitas = handle != null &&
+      (handle.x != 0 ||
+          handle.y != 0 ||
+          handle.width != 12 ||
+          handle.height != 12);
+
+  if (usaCoordenadasExplicitas) {
+    final x = node.position.x + handle.x;
+    final y = node.position.y + handle.y;
+
+    switch (handle.position) {
+      case Position.left:
+        return XYPosition(x: x, y: y + (handle.height / 2));
+      case Position.top:
+        return XYPosition(x: x + (handle.width / 2), y: y);
+      case Position.right:
+        return XYPosition(x: x + handle.width, y: y + (handle.height / 2));
+      case Position.bottom:
+        return XYPosition(x: x + (handle.width / 2), y: y + handle.height);
+    }
   }
 
   switch (position) {
@@ -226,6 +241,7 @@ EdgePathResult getSmoothStepPath({
   Position targetPosition = Position.top,
   double offset = 24,
   double stepPosition = 0.5,
+  double borderRadius = 5,
 }) {
   final sourceGap = _applyOffset(sourceX, sourceY, sourcePosition, offset);
   final targetGap = _applyOffset(targetX, targetY, targetPosition, offset);
@@ -250,18 +266,68 @@ EdgePathResult getSmoothStepPath({
     XYPosition(x: targetX, y: targetY),
   ];
 
-  final commands = <String>['M ${points.first.x},${points.first.y}'];
-  for (final point in points.skip(1)) {
-    commands.add('L ${point.x},${point.y}');
-  }
+  final path = _getRoundedPath(points, borderRadius);
 
   return EdgePathResult(
-    path: commands.join(' '),
+    path: path,
     labelX: centerX,
     labelY: centerY,
     offsetX: (centerX - sourceX).abs(),
     offsetY: (centerY - sourceY).abs(),
   );
+}
+
+String _getRoundedPath(List<XYPosition> points, double radius) {
+  // Filter out duplicate consecutive points to avoid division by zero
+  final filteredPoints = <XYPosition>[];
+  for (final p in points) {
+    if (filteredPoints.isEmpty ||
+        (filteredPoints.last.x != p.x || filteredPoints.last.y != p.y)) {
+      filteredPoints.add(p);
+    }
+  }
+
+  if (filteredPoints.length < 2) return '';
+  final commands = <String>[
+    'M ${filteredPoints.first.x},${filteredPoints.first.y}'
+  ];
+
+  for (var i = 1; i < filteredPoints.length; i++) {
+    final p0 = filteredPoints[i - 1];
+    final p1 = filteredPoints[i];
+    final p2 = i < filteredPoints.length - 1 ? filteredPoints[i + 1] : null;
+
+    if (p2 == null || radius <= 0) {
+      commands.add('L ${p1.x},${p1.y}');
+    } else {
+      final v10 = XYPosition(x: p0.x - p1.x, y: p0.y - p1.y);
+      final v12 = XYPosition(x: p2.x - p1.x, y: p2.y - p1.y);
+
+      final d10 = math.sqrt(v10.x * v10.x + v10.y * v10.y);
+      final d12 = math.sqrt(v12.x * v12.x + v12.y * v12.y);
+
+      if (d10 == 0 || d12 == 0) {
+        commands.add('L ${p1.x},${p1.y}');
+        continue;
+      }
+
+      final r = math.min(radius, math.min(d10, d12) / 2);
+
+      final start = XYPosition(
+        x: p1.x + v10.x * (r / d10),
+        y: p1.y + v10.y * (r / d10),
+      );
+      final end = XYPosition(
+        x: p1.x + v12.x * (r / d12),
+        y: p1.y + v12.y * (r / d12),
+      );
+
+      commands.add('L ${start.x},${start.y}');
+      commands.add('Q ${p1.x},${p1.y} ${end.x},${end.y}');
+    }
+  }
+
+  return commands.join(' ');
 }
 
 EdgePathResult getSimpleBezierPath({

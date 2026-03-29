@@ -1,11 +1,61 @@
-<div class="ng-flow-wrapper" style="height: 600px; width: 100%; border: 1px solid #ddd; position: relative;">
+<div class="ng-flow-wrapper">
+    <div
+        *ngIf="toolboxOpen"
+        class="canvas-toolbox-backdrop"
+        (click)="closeToolbox()"></div>
+
     <ng-flow [nodes]="nodes"
              [edges]="edges"
+             [autoAddConnectedEdge]="true"
+             [nodesResizable]="false"
              (nodesChange)="handleNodesChanged($event)"
              (edgesChange)="handleEdgesChanged($event)"
-             (selectionChange)="handleSelectionChanged($event)">
+             (selectionChange)="handleSelectionChanged($event)"
+             (nodeDoubleClick)="handleNodeDoubleClick($event)"
+             (edgeDoubleClick)="handleEdgeDoubleClick($event)">
         <rf-background [variant]="'dots'" [gap]="20"></rf-background>
         <rf-controls></rf-controls>
         <rf-minimap></rf-minimap>
     </ng-flow>
+
+    <aside
+        class="canvas-toolbox"
+        [class.is-open]="toolboxOpen"
+        aria-label="Criar novos nós">
+        <div class="canvas-toolbox__header">
+            <div>
+                <span class="canvas-toolbox__eyebrow">Biblioteca</span>
+                <strong>Adicionar bloco</strong>
+            </div>
+            <button type="button" class="canvas-toolbox__close" (click)="closeToolbox()">
+                <i class="ph ph-x"></i>
+            </button>
+        </div>
+        <div class="canvas-toolbox__grid">
+            <button
+                *ngFor="let tipo of toolboxNodeTypes"
+                type="button"
+                class="canvas-toolbox__item"
+                (click)="addNodeAndClose(tipo)">
+                <span class="canvas-toolbox__icon">
+                    <i [class]="'ph ' + toolboxIcon(tipo)"></i>
+                </span>
+                <span class="canvas-toolbox__content">
+                    <span class="canvas-toolbox__title">{{ tipo.label }}</span>
+                    <span class="canvas-toolbox__badge">{{ toolboxBadge(tipo) }}</span>
+                </span>
+            </button>
+        </div>
+    </aside>
+
+    <div class="canvas-bottom-bar">
+        <button type="button" class="canvas-bottom-bar__button" (click)="toggleToolbox()">
+            <i class="ph ph-plus-square"></i>
+            Adicionar
+        </button>
+        <button type="button" class="canvas-bottom-bar__button">
+            <i class="ph ph-stack"></i>
+            Ordenar
+        </button>
+    </div>
 </div>

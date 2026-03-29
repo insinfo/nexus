@@ -6,3 +6,14 @@
   flex: 1;
   flex-direction: column;
 }
+
+.content-wrapper,
+.content-inner,
+.content {
+  min-height: 0;
+}
+
+.content {
+  height: 100%;
+  padding: 0;
+}

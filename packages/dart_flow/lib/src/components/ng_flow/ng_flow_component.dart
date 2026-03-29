@@ -107,7 +107,9 @@ class NgFlowComponent implements AfterViewInit, OnDestroy {
       StreamController<List<FlowEdgeChange>>.broadcast();
   final _viewportChangeController = StreamController<Viewport>.broadcast();
   final _nodeClickController = StreamController<FlowNode>.broadcast();
+  final _nodeDoubleClickController = StreamController<FlowNode>.broadcast();
   final _edgeClickController = StreamController<FlowEdge>.broadcast();
+  final _edgeDoubleClickController = StreamController<FlowEdge>.broadcast();
   final _connectController = StreamController<FlowConnection>.broadcast();
   final _reconnectController = StreamController<FlowConnection>.broadcast();
   final _connectStartController =
@@ -145,6 +147,9 @@ class NgFlowComponent implements AfterViewInit, OnDestroy {
 
   @Input()
   bool nodesDraggable = true;
+
+  @Input()
+  bool nodesResizable = true;
 
   @Input()
   bool selectionOnDrag = true;
@@ -260,8 +265,14 @@ class NgFlowComponent implements AfterViewInit, OnDestroy {
   @Output('nodeClick')
   Stream<FlowNode> get nodeClick => _nodeClickController.stream;
 
+  @Output('nodeDoubleClick')
+  Stream<FlowNode> get nodeDoubleClick => _nodeDoubleClickController.stream;
+
   @Output('edgeClick')
   Stream<FlowEdge> get edgeClick => _edgeClickController.stream;
+
+  @Output('edgeDoubleClick')
+  Stream<FlowEdge> get edgeDoubleClick => _edgeDoubleClickController.stream;
 
   @Output('connect')
   Stream<FlowConnection> get connect => _connectController.stream;
@@ -300,8 +311,9 @@ class NgFlowComponent implements AfterViewInit, OnDestroy {
       _interaction.lastConnectionEndState;
   XYFinalConnectionState? get lastReconnectEndState =>
       _interaction.lastReconnectEndState;
+  bool get isPanning => _spacePressed || _interaction.isPanning;
   String get accessibilityDescription =>
-      'Use Tab para navegar entre nos e arestas, Enter ou espaco para selecionar, setas para mover o no selecionado, Shift com setas para redimensionar, Delete para remover, F para enquadrar e Escape para limpar a selecao.';
+      'Use Tab para navegar entre nos e arestas, Enter ou espaco para selecionar, setas para mover o no selecionado, Delete para remover, F para enquadrar e Escape para limpar a selecao.';
 
   String get selectionRectStyle {
     if (!hasSelectionRect) {
@@ -482,6 +494,41 @@ class NgFlowComponent implements AfterViewInit, OnDestroy {
       }
     }
     return nodeSubtitleBuilder?.call(node) ?? (node.type ?? 'default');
+  }
+
+  String nodeIconClass(FlowNode node) {
+    switch (node.type) {
+      case 'inicio':
+        return 'ph-sign-in';
+      case 'fim':
+        return 'ph-sign-out';
+      case 'formulario':
+        return 'ph-list-bullets';
+      case 'conteudo_dinamico':
+        return 'ph-file-text';
+      case 'api':
+        return 'ph-plugs';
+      case 'condicao':
+        return 'ph-git-branch';
+      case 'regra':
+        return 'ph-scales';
+      case 'classificacao':
+        return 'ph-sort-ascending';
+      case 'email':
+        return 'ph-envelope-simple';
+      case 'notificacao':
+        return 'ph-bell';
+      case 'triagem':
+        return 'ph-users';
+      case 'acao_status':
+        return 'ph-flag';
+      case 'distribuicao':
+        return 'ph-share-network';
+      case 'temporizador':
+        return 'ph-clock';
+      default:
+        return 'ph-cube';
+    }
   }
 
   String nodeHtml(FlowNode node) {
@@ -671,7 +718,15 @@ class NgFlowComponent implements AfterViewInit, OnDestroy {
       return;
     }
 
-    if (event.shiftKey &&
+    if (event.key == deleteKey || event.key == 'Backspace') {
+      event.preventDefault();
+      _controller.deleteSelected();
+      _syncViewModel();
+      return;
+    }
+
+    if (nodesResizable &&
+        event.shiftKey &&
         (event.key == 'ArrowUp' ||
             event.key == 'ArrowDown' ||
             event.key == 'ArrowLeft' ||
@@ -697,6 +752,14 @@ class NgFlowComponent implements AfterViewInit, OnDestroy {
     if (event.key == 'Tab' && rovingFocus) {
       event.preventDefault();
       _focusNextTarget(reverse: event.shiftKey);
+      return;
+    }
+
+    if (event.key == deleteKey || event.key == 'Backspace') {
+      event.preventDefault();
+      _controller.deleteSelected();
+      _syncViewModel();
+      return;
     }
   }
 
@@ -733,10 +796,7 @@ class NgFlowComponent implements AfterViewInit, OnDestroy {
     };
     _interaction.startNodeDrag(
       nodeId: node.id,
-      pointer: XYPosition(
-        x: event.client.x.toDouble(),
-        y: event.client.y.toDouble(),
-      ),
+      pointer: _toLocal(event.client.x.toDouble(), event.client.y.toDouble()),
       startPosition: node.position,
       viewport: _controller.viewport,
       startPositions: startPositions,
@@ -753,10 +813,23 @@ class NgFlowComponent implements AfterViewInit, OnDestroy {
     _nodeClickController.add(node);
   }
 
+  void onNodeDoubleClick(FlowNode node, html.MouseEvent event) {
+    event.stopPropagation();
+    _controller.selectNode(node.id);
+    _selectionController.add(<String>{node.id});
+    _nodeDoubleClickController.add(node);
+  }
+
   void onEdgeClick(FlowEdge edge, html.MouseEvent event) {
     event.stopPropagation();
     _controller.selectEdge(edge.id);
     _edgeClickController.add(edge);
+  }
+
+  void onEdgeDoubleClick(FlowEdge edge, html.MouseEvent event) {
+    event.stopPropagation();
+    _controller.selectEdge(edge.id);
+    _edgeDoubleClickController.add(edge);
   }
 
   void onWheel(html.WheelEvent event) {
@@ -916,7 +989,6 @@ class NgFlowComponent implements AfterViewInit, OnDestroy {
   void onTargetHandleMouseUp(
       html.MouseEvent event, FlowNode node, FlowHandle handle) {
     event.stopPropagation();
-
     if (_interaction.reconnectEdgeId != null) {
       _finalizeReconnect(node.id, handle.id);
       return;
@@ -933,10 +1005,14 @@ class NgFlowComponent implements AfterViewInit, OnDestroy {
     }
     _connectController.add(connection);
     if (autoAddConnectedEdge) {
-      _controller.setEdges(addEdge(connection, _controller.edges));
+      _addConnectedEdge(connection);
     }
     _syncViewModel();
     _changeDetectorRef.markForCheck();
+  }
+
+  void onTargetHandleMouseDown(html.MouseEvent event) {
+    event.stopPropagation();
   }
 
   void onHandleClick(
@@ -970,7 +1046,7 @@ class NgFlowComponent implements AfterViewInit, OnDestroy {
     }
     _connectController.add(connection);
     if (autoAddConnectedEdge) {
-      _controller.setEdges(addEdge(connection, _controller.edges));
+      _addConnectedEdge(connection);
     }
     _syncViewModel();
     _changeDetectorRef.markForCheck();
@@ -1001,13 +1077,13 @@ class NgFlowComponent implements AfterViewInit, OnDestroy {
   }
 
   void onResizeHandleMouseDown(html.MouseEvent event, FlowNode node) {
+    if (!nodesResizable) {
+      return;
+    }
     event.stopPropagation();
     _interaction.startResize(
       nodeId: node.id,
-      pointer: XYPosition(
-        x: event.client.x.toDouble(),
-        y: event.client.y.toDouble(),
-      ),
+      pointer: _toLocal(event.client.x.toDouble(), event.client.y.toDouble()),
       width: node.width,
       height: node.height,
     );
@@ -1015,11 +1091,35 @@ class NgFlowComponent implements AfterViewInit, OnDestroy {
   }
 
   void duplicateSelectedNode() {
-    _controller.duplicateSelectedNode();
+    final duplicated = _controller.duplicateSelectedNode();
+    if (duplicated != null) {
+      _nodesChangeController.add([FlowNodeAddChange(item: duplicated)]);
+    }
     _syncViewModel();
   }
 
   void deleteSelected() {
+    final deletedNodeIds = _instance.selectedNodeIds.toList();
+    final deletedEdgeIds = _instance.selectedEdgeIds.toList();
+
+    for (final edge in _instance.edges) {
+      if (deletedNodeIds.contains(edge.source) ||
+          deletedNodeIds.contains(edge.target)) {
+        if (!deletedEdgeIds.contains(edge.id)) {
+          deletedEdgeIds.add(edge.id);
+        }
+      }
+    }
+
+    if (deletedNodeIds.isNotEmpty) {
+      _nodesChangeController.add(
+          deletedNodeIds.map((id) => FlowNodeRemoveChange(id: id)).toList());
+    }
+    if (deletedEdgeIds.isNotEmpty) {
+      _edgesChangeController.add(
+          deletedEdgeIds.map((id) => FlowEdgeRemoveChange(id: id)).toList());
+    }
+
     _controller.deleteSelected();
     _syncViewModel();
   }
@@ -1080,7 +1180,9 @@ class NgFlowComponent implements AfterViewInit, OnDestroy {
     _edgesChangeController.close();
     _viewportChangeController.close();
     _nodeClickController.close();
+    _nodeDoubleClickController.close();
     _edgeClickController.close();
+    _edgeDoubleClickController.close();
     _connectController.close();
     _reconnectController.close();
     _connectStartController.close();
@@ -1183,10 +1285,7 @@ class NgFlowComponent implements AfterViewInit, OnDestroy {
       };
 
       final dragResult = _interaction.computeNodeDrag(
-        pointer: XYPosition(
-          x: event.client.x.toDouble(),
-          y: event.client.y.toDouble(),
-        ),
+        pointer: _toLocal(event.client.x.toDouble(), event.client.y.toDouble()),
         dimensions: dragDimensions,
         canvasWidth: _controller.canvasWidth,
         canvasHeight: _controller.canvasHeight,
@@ -1217,10 +1316,7 @@ class NgFlowComponent implements AfterViewInit, OnDestroy {
 
     if (_interaction.resizeNodeId != null) {
       final nextSize = _interaction.computeResize(
-        pointer: XYPosition(
-          x: event.client.x.toDouble(),
-          y: event.client.y.toDouble(),
-        ),
+        pointer: _toLocal(event.client.x.toDouble(), event.client.y.toDouble()),
         viewport: _controller.viewport,
       );
       _controller.updateNodeDimensions(
@@ -1270,10 +1366,8 @@ class NgFlowComponent implements AfterViewInit, OnDestroy {
     if (_interaction.isPanning) {
       _controller.setViewportConstrained(
         _interaction.computePan(
-          pointer: XYPosition(
-            x: event.client.x.toDouble(),
-            y: event.client.y.toDouble(),
-          ),
+          pointer:
+              _toLocal(event.client.x.toDouble(), event.client.y.toDouble()),
           viewport: _controller.viewport,
         ),
       );
@@ -1287,6 +1381,15 @@ class NgFlowComponent implements AfterViewInit, OnDestroy {
         false,
       );
       _interaction.stopNodeDrag();
+    }
+
+    if (_interaction.resizeNodeId != null) {
+      final resizedNode = _controller.nodes
+          .where((node) => node.id == _interaction.resizeNodeId)
+          .firstOrNull;
+      if (resizedNode != null) {
+        _nodesChangeController.add([FlowNodeReplaceChange(item: resizedNode)]);
+      }
     }
 
     if (_interaction.isSelecting) {
@@ -1321,10 +1424,7 @@ class NgFlowComponent implements AfterViewInit, OnDestroy {
 
   void _startPan(html.MouseEvent event) {
     _interaction.startPan(
-      pointer: XYPosition(
-        x: event.client.x.toDouble(),
-        y: event.client.y.toDouble(),
-      ),
+      pointer: _toLocal(event.client.x.toDouble(), event.client.y.toDouble()),
       viewport: _controller.viewport,
       mouseButton: event.button,
     );
@@ -1351,6 +1451,9 @@ class NgFlowComponent implements AfterViewInit, OnDestroy {
   }
 
   void _resizeSelectedWithKeyboard(String key) {
+    if (!nodesResizable) {
+      return;
+    }
     final node = selectedNode;
     if (node == null) {
       return;
@@ -1370,6 +1473,12 @@ class NgFlowComponent implements AfterViewInit, OnDestroy {
         width += step;
     }
     _controller.updateNodeDimensions(node.id, width, height);
+    final updatedNode = _controller.nodes
+        .where((candidate) => candidate.id == node.id)
+        .firstOrNull;
+    if (updatedNode != null) {
+      _nodesChangeController.add([FlowNodeReplaceChange(item: updatedNode)]);
+    }
   }
 
   void _focusFirstNode() {
@@ -1629,5 +1738,14 @@ class NgFlowComponent implements AfterViewInit, OnDestroy {
         connectionState: state,
       ),
     );
+  }
+
+  void _addConnectedEdge(FlowConnection connection) {
+    final nextEdges = addEdge(connection, _controller.edges);
+    final addedEdge = nextEdges.isNotEmpty ? nextEdges.last : null;
+    _controller.setEdges(nextEdges);
+    if (addedEdge != null) {
+      _edgesChangeController.add([FlowEdgeAddChange(item: addedEdge)]);
+    }
   }
 }

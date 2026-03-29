@@ -150,18 +150,14 @@ Viewport constrainViewport({
   double maxZoom = 2.0,
 }) {
   final nextZoom = clampDouble(viewport.zoom, minZoom, maxZoom);
-  final minX = translateExtent.x +
-      viewportExtent.width -
-      (translateExtent.x + translateExtent.width);
-  final maxX = translateExtent.x;
-  final minY = translateExtent.y +
-      viewportExtent.height -
-      (translateExtent.y + translateExtent.height);
-  final maxY = translateExtent.y;
+  final minX = viewportExtent.width - (translateExtent.x + translateExtent.width) * nextZoom;
+  final maxX = -translateExtent.x * nextZoom;
+  final minY = viewportExtent.height - (translateExtent.y + translateExtent.height) * nextZoom;
+  final maxY = -translateExtent.y * nextZoom;
 
   return Viewport(
-    x: clampDouble(viewport.x, minX > maxX ? maxX : minX, maxX),
-    y: clampDouble(viewport.y, minY > maxY ? maxY : minY, maxY),
+    x: clampDouble(viewport.x, minX > maxX ? maxX : minX, maxX > minX ? maxX : minX),
+    y: clampDouble(viewport.y, minY > maxY ? maxY : minY, maxY > minY ? maxY : minY),
     zoom: nextZoom,
   );
 }

@@ -6,6 +6,7 @@ import 'package:nexus_frontend_backoffice/nexus_frontend_backoffice.dart';
 @Component(
   selector: 'seletor-servico',
   templateUrl: 'seletor_servico_component.html',
+  styleUrls: ['seletor_servico_component.css'],
   directives: [coreDirectives],
 )
 class SeletorServicoComponent {

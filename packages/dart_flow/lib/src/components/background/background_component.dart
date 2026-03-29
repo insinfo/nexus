@@ -18,10 +18,10 @@ class BackgroundComponent implements OnInit, OnDestroy {
   StreamSubscription<int>? _subscription;
 
   @Input()
-  int gap = 24;
+  int gap = 20;
 
   @Input()
-  String color = 'rgba(148, 163, 184, 0.36)';
+  String color = 'rgba(180, 190, 210, 0.55)';
 
   @Input()
   String variant = 'dots';

@@ -7,8 +7,6 @@ import 'package:nexus_frontend_backoffice/src/modules/builder/components/canvas_
 import 'package:nexus_frontend_backoffice/src/modules/builder/components/inspetor_no/inspetor_no_component.dart';
 import 'package:nexus_frontend_backoffice/src/modules/builder/components/seletor_servico/seletor_servico_component.dart';
 
-
-
 @Component(
   selector: 'builder-page',
   templateUrl: 'builder_page.html',
@@ -34,7 +32,7 @@ class BuilderPage implements OnInit {
 
   List<ResumoServico> services = [];
   List<ResumoVersaoServico> builderVersions = [];
-  
+
   ServicoDto? builderService;
   String? selectedBuilderServiceId;
   String? selectedBuilderVersionId;
@@ -48,6 +46,9 @@ class BuilderPage implements OnInit {
 
   NoFluxoDto? noSelecionadoBuilder;
   ArestaFluxoDto? arestaSelecionadaBuilder;
+
+  bool get temElementoSelecionado =>
+      noSelecionadoBuilder != null || arestaSelecionadaBuilder != null;
 
   @override
   Future<void> ngOnInit() async {
@@ -72,12 +73,15 @@ class BuilderPage implements OnInit {
     builderLoading = true;
     try {
       builderService = await _builderService.findServico(serviceId);
-      final dfVersoes = await _builderService.listVersoes(serviceId, Filters(limit: 50));
+      final dfVersoes =
+          await _builderService.listVersoes(serviceId, Filters(limit: 50));
       builderVersions = dfVersoes.items;
-      
+
       if (builderVersions.isNotEmpty) {
         // Tenta achar um rascunho
-        final rascunho = builderVersions.firstWhere((v) => v.status == StatusVersaoServico.rascunho, orElse: () => builderVersions.first);
+        final rascunho = builderVersions.firstWhere(
+            (v) => v.status == StatusVersaoServico.rascunho,
+            orElse: () => builderVersions.first);
         await onBuilderVersionChanged(rascunho.id);
       }
     } catch (_) {
@@ -89,8 +93,9 @@ class BuilderPage implements OnInit {
 
   Future<void> onBuilderVersionChanged(String versionId) async {
     selectedBuilderVersionId = versionId;
-    versaoSelecionada = builderService?.versoes.firstWhere((v) => v.id == versionId);
-    
+    versaoSelecionada =
+        builderService?.versoes.firstWhere((v) => v.id == versionId);
+
     if (versaoSelecionada != null && versaoSelecionada!.fluxos.isNotEmpty) {
       final fluxoId = versaoSelecionada!.fluxos.first.id;
       await onBuilderFlowChanged(fluxoId);
@@ -104,10 +109,21 @@ class BuilderPage implements OnInit {
 
   Future<void> onBuilderFlowChanged(String flowId) async {
     selectedBuilderFlowId = flowId;
-    final fluxoOriginal = versaoSelecionada?.fluxos.firstWhere((f) => f.id == flowId);
+    final fluxoOriginal =
+        versaoSelecionada?.fluxos.firstWhere((f) => f.id == flowId);
     if (fluxoOriginal != null) {
-      // Cria uma copia para edição
-      fluxoEmEdicao = FluxoDto.fromMap(fluxoOriginal.toMap());
+      // Cria uma cópia mutável para edição (fromMap retorna listas growable:false)
+      fluxoEmEdicao = FluxoDto(
+        id: fluxoOriginal.id,
+        chave: fluxoOriginal.chave,
+        tipo: fluxoOriginal.tipo,
+        nos: fluxoOriginal.nos
+            .map((n) => NoFluxoDto.fromMap(n.toMap()))
+            .toList(),
+        arestas: fluxoOriginal.arestas
+            .map((a) => ArestaFluxoDto.fromMap(a.toMap()))
+            .toList(),
+      );
       _sincronizarCanvasComFluxo();
     }
   }
@@ -124,45 +140,109 @@ class BuilderPage implements OnInit {
     arestaSelecionadaBuilder = null;
   }
 
+  void fecharPainelLateral() {
+    _limparSelecao();
+  }
+
   void handleNodesChanged(List<FlowNodeChange> changes) {
     if (fluxoEmEdicao == null) return;
 
     for (final change in changes) {
-      if (change is FlowNodePositionChange) {
+      if (change is FlowNodeAddChange) {
+        fluxoEmEdicao!.nos.add(
+          criarNoFluxoAPartirDoCanvas(change.item, fluxoEmEdicao!.nos.length),
+        );
+      } else if (change is FlowNodePositionChange) {
         final no = fluxoEmEdicao!.nos.firstWhere((n) => n.id == change.id);
         no.posicao = PosicaoXY(x: change.position.x, y: change.position.y);
+      } else if (change is FlowNodeReplaceChange) {
+        final idx = fluxoEmEdicao!.nos.indexWhere((n) => n.id == change.id);
+        if (idx >= 0) {
+          fluxoEmEdicao!.nos[idx] =
+              criarNoFluxoAPartirDoCanvas(change.item, idx);
+        }
+      } else if (change is FlowNodeRemoveChange) {
+        fluxoEmEdicao!.nos.removeWhere((n) => n.id == change.id);
+        fluxoEmEdicao!.arestas.removeWhere(
+            (a) => a.origem == change.id || a.destino == change.id);
+      }
+    }
+  }
+
+  void handleEdgesChanged(List<FlowEdgeChange> changes) {
+    if (fluxoEmEdicao == null) return;
+
+    for (final change in changes) {
+      if (change is FlowEdgeRemoveChange) {
+        fluxoEmEdicao!.arestas.removeWhere((a) => a.id == change.id);
+      } else if (change is FlowEdgeAddChange) {
+        final novaAresta = ArestaFluxoDto(
+          id: change.item.id,
+          origem: change.item.source,
+          destino: change.item.target,
+        );
+        if (!fluxoEmEdicao!.arestas.any((a) => a.id == novaAresta.id)) {
+          fluxoEmEdicao!.arestas.add(novaAresta);
+        }
+      } else if (change is FlowEdgeReplaceChange) {
+        final idx =
+            fluxoEmEdicao!.arestas.indexWhere((a) => a.id == change.item.id);
+        if (idx >= 0) {
+          fluxoEmEdicao!.arestas[idx] = ArestaFluxoDto(
+            id: change.item.id,
+            origem: change.item.source,
+            destino: change.item.target,
+          );
+        }
       }
     }
   }
 
   void handleCanvasSelectionChanged(Set<String> selectedIds) {
-    if (fluxoEmEdicao == null) return;
-
     if (selectedIds.isEmpty) {
-      _limparSelecao();
-      return;
-    }
-
-    final id = selectedIds.first;
-    // Tenta achar no
-    final no = fluxoEmEdicao!.nos.where((n) => n.id == id).firstOrNull;
-    if (no != null) {
-      noSelecionadoBuilder = no;
-      arestaSelecionadaBuilder = null;
-      return;
-    }
-
-    // Tenta achar aresta
-    final aresta = fluxoEmEdicao!.arestas.where((a) => a.id == id).firstOrNull;
-    if (aresta != null) {
-      arestaSelecionadaBuilder = aresta;
-      noSelecionadoBuilder = null;
-    } else {
       _limparSelecao();
     }
   }
 
+  void handleNodeDoubleClick(FlowNode node) {
+    if (fluxoEmEdicao == null) {
+      return;
+    }
+
+    final selecionado =
+        fluxoEmEdicao!.nos.where((item) => item.id == node.id).firstOrNull;
+    if (selecionado == null) {
+      return;
+    }
+
+    noSelecionadoBuilder = selecionado;
+    arestaSelecionadaBuilder = null;
+  }
+
+  void handleEdgeDoubleClick(FlowEdge edge) {
+    if (fluxoEmEdicao == null) {
+      return;
+    }
+
+    final selecionada =
+        fluxoEmEdicao!.arestas.where((item) => item.id == edge.id).firstOrNull;
+    if (selecionada == null) {
+      return;
+    }
+
+    arestaSelecionadaBuilder = selecionada;
+    noSelecionadoBuilder = null;
+  }
+
   void handleNodeDataChanged() {
+    _sincronizarCanvasComFluxo();
+  }
+
+  void adicionarNo(TipoNoFluxo tipo) {
+    if (fluxoEmEdicao == null) return;
+
+    final novoNo = criarNoFluxoPadrao(tipo, fluxoEmEdicao!.nos.length);
+    fluxoEmEdicao!.nos.add(novoNo);
     _sincronizarCanvasComFluxo();
   }
 
@@ -171,11 +251,14 @@ class BuilderPage implements OnInit {
 
     if (noSelecionadoBuilder != null) {
       fluxoEmEdicao!.nos.removeWhere((n) => n.id == noSelecionadoBuilder!.id);
-      fluxoEmEdicao!.arestas.removeWhere((a) => a.origem == noSelecionadoBuilder!.id || a.destino == noSelecionadoBuilder!.id);
+      fluxoEmEdicao!.arestas.removeWhere((a) =>
+          a.origem == noSelecionadoBuilder!.id ||
+          a.destino == noSelecionadoBuilder!.id);
       _limparSelecao();
       _sincronizarCanvasComFluxo();
     } else if (arestaSelecionadaBuilder != null) {
-      fluxoEmEdicao!.arestas.removeWhere((a) => a.id == arestaSelecionadaBuilder!.id);
+      fluxoEmEdicao!.arestas
+          .removeWhere((a) => a.id == arestaSelecionadaBuilder!.id);
       _limparSelecao();
       _sincronizarCanvasComFluxo();
     }
@@ -216,7 +299,9 @@ class BuilderPage implements OnInit {
   }
 
   ServicoDto? _montarServicoComFluxoEditado() {
-    if (builderService == null || versaoSelecionada == null || fluxoEmEdicao == null) return null;
+    if (builderService == null ||
+        versaoSelecionada == null ||
+        fluxoEmEdicao == null) return null;
 
     final versoesAtualizadas = builderService!.versoes.map((v) {
       if (v.id != versaoSelecionada!.id) return v;

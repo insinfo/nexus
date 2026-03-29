@@ -1,64 +1,59 @@
-<div class="card h-100 border-0 shadow-none">
-    <div class="card-header bg-light border-bottom">
-        <h6 class="mb-0">Propriedades</h6>
-    </div>
-
-    <div class="card-body" *ngIf="!temSelecao">
-        <div class="text-muted italic text-center py-4">
-            <i class="ph-selection ph-2x mb-2 d-block"></i>
-            Selecione um nó ou aresta no canvas para editar suas propriedades.
+<div class="inspector-shell">
+    <div class="inspector-shell__body" *ngIf="!temSelecao">
+        <div class="inspector-empty-state">
+            <i class="ph ph-selection inspector-empty-state__icon"></i>
+            <div class="inspector-empty-state__title">Selecione um elemento</div>
+            <div class="inspector-empty-state__text">Escolha um no ou uma aresta no canvas para editar propriedades e comportamento.</div>
         </div>
     </div>
 
-    <div class="card-body overflow-auto" *ngIf="no != null">
-        <div class="mb-3">
-            <label class="form-label text-muted small text-uppercase fw-bold">ID do Nó</label>
-            <div class="form-control bg-light border-0 py-1">{{ no!.id }}</div>
-        </div>
+    <div class="inspector-shell__body inspector-shell__body--form" *ngIf="no != null">
+        <section class="inspector-group">
+            <div class="inspector-group__label">ID do no</div>
+            <div class="inspector-readonly">{{ no!.id }}</div>
+        </section>
 
-        <div class="mb-3">
-            <label class="form-label text-muted small text-uppercase fw-bold">Tipo</label>
-            <div class="form-control bg-light border-0 py-1">
-                <span class="badge bg-primary bg-opacity-10 text-primary border-primary border">{{ tipoNoLabel }}</span>
+        <section class="inspector-group">
+            <div class="inspector-group__label">Tipo</div>
+            <div class="inspector-readonly">
+                <span class="inspector-badge">{{ tipoNoLabel }}</span>
             </div>
-        </div>
+        </section>
 
-        <hr>
+        <section class="inspector-group">
+            <label class="inspector-group__label">Rotulo / nome</label>
+            <input type="text" class="form-control inspector-input" [(ngModel)]="no!.dados.rotulo" (input)="notifyChange()">
+        </section>
 
-        <div class="mb-3">
-            <label class="form-label">Rótulo / Nome</label>
-            <input type="text" class="form-control" [(ngModel)]="no!.dados.rotulo" (input)="notifyChange()">
-        </div>
+        <section class="inspector-group inspector-hint" *ngIf="no!.tipo == TipoNoFluxo.apresentacao">
+            Configuracoes de apresentacao serao exibidas aqui conforme os campos do bloco forem evoluindo.
+        </section>
 
-        <!-- Seção específica para Apresentação -->
-        <div *ngIf="no!.tipo == TipoNoFluxo.apresentacao">
-            <!-- Outras propriedades virão aqui -->
-            <p class="text-muted small">Configurações de apresentação...</p>
-        </div>
+        <section class="inspector-group" *ngIf="no!.tipo == TipoNoFluxo.condicao">
+            <label class="inspector-group__label">Expressao</label>
+            <textarea class="form-control inspector-input inspector-textarea" rows="4" [(ngModel)]="dadosCond!.expressao" (input)="notifyChange()"></textarea>
+        </section>
 
-        <!-- Seção específica para Condição -->
-        <div *ngIf="no!.tipo == TipoNoFluxo.condicao">
-            <div class="mb-3">
-                <label class="form-label">Expressão (Expression Language)</label>
-                <textarea class="form-control" rows="3" [(ngModel)]="dadosCond!.expressao" (input)="notifyChange()"></textarea>
-            </div>
-        </div>
-
-        <button type="button" class="btn btn-outline-danger btn-sm w-100 mt-4" (click)="remove()">
-            <i class="ph-trash me-2"></i>
-            Remover Nó
+        <button type="button" class="btn btn-outline-danger inspector-remove" (click)="remove()">
+            <i class="ph ph-trash me-2"></i>
+            Remover no
         </button>
     </div>
 
-    <div class="card-body" *ngIf="aresta != null">
-        <h6>Aresta: {{ aresta!.id }}</h6>
-        <div class="mb-3">
-            <label class="form-label">Rótulo</label>
-            <input type="text" class="form-control" [(ngModel)]="aresta!.rotulo" (input)="notifyChange()">
-        </div>
-        <button type="button" class="btn btn-outline-danger btn-sm w-100 mt-4" (click)="remove()">
-            <i class="ph-trash me-2"></i>
-            Remover Aresta
+    <div class="inspector-shell__body inspector-shell__body--form" *ngIf="aresta != null">
+        <section class="inspector-group">
+            <div class="inspector-group__label">Aresta</div>
+            <div class="inspector-readonly">{{ aresta!.id }}</div>
+        </section>
+
+        <section class="inspector-group">
+            <label class="inspector-group__label">Rotulo</label>
+            <input type="text" class="form-control inspector-input" [(ngModel)]="aresta!.rotulo" (input)="notifyChange()">
+        </section>
+
+        <button type="button" class="btn btn-outline-danger inspector-remove" (click)="remove()">
+            <i class="ph ph-trash me-2"></i>
+            Remover aresta
         </button>
     </div>
 </div>

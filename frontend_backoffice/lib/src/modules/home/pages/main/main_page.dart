@@ -1,4 +1,5 @@
 import 'package:nexus_frontend_backoffice/nexus_frontend_backoffice.dart';
+import 'dart:async';
 
 @Component(
   selector: 'main-page',
@@ -12,8 +13,19 @@ import 'package:nexus_frontend_backoffice/nexus_frontend_backoffice.dart';
 )
 class MainPage implements OnInit {
   final Router _router;
+  Timer? _sidebarEnterTimer;
+  Timer? _sidebarLeaveTimer;
+
+  bool isSidebarResized = false;
+  bool isSidebarUnfold = false;
+  bool isSidebarMobileExpanded = false;
 
   int get todayYear => DateTime.now().year;
+
+  bool get exibirRodape {
+    final path = _router.current?.path ?? '';
+    return !path.contains('builder');
+  }
 
   MainPage(this._router);
 
@@ -45,4 +57,33 @@ class MainPage implements OnInit {
 
   @override
   Future<void> ngOnInit() async {}
+
+  void toggleSidebarResize() {
+    isSidebarResized = !isSidebarResized;
+    if (!isSidebarResized) {
+      isSidebarUnfold = false;
+    }
+  }
+
+  void onSidebarMouseEnter() {
+    _sidebarLeaveTimer?.cancel();
+    _sidebarEnterTimer?.cancel();
+    _sidebarEnterTimer = Timer(const Duration(milliseconds: 150), () {
+      if (isSidebarResized) {
+        isSidebarUnfold = true;
+      }
+    });
+  }
+
+  void onSidebarMouseLeave() {
+    _sidebarEnterTimer?.cancel();
+    _sidebarLeaveTimer?.cancel();
+    _sidebarLeaveTimer = Timer(const Duration(milliseconds: 150), () {
+      isSidebarUnfold = false;
+    });
+  }
+
+  void toggleSidebarMobile() {
+    isSidebarMobileExpanded = !isSidebarMobileExpanded;
+  }
 }

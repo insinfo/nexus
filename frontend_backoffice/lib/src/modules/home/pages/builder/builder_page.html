@@ -1,75 +1,85 @@
-<div class="row g-0 h-100 overflow-hidden">
-    <!-- Barra Lateral de Navegação de Fluxos (Opcional, ou embutida no seletor) -->
-    
-    <!-- Área Central: Toolbar + Canvas -->
-    <div class="col d-flex flex-column border-end bg-white">
-        <!-- Toolbar Superior -->
-        <div class="navbar navbar-expand-lg navbar-light border-bottom px-3 py-2 bg-white sticky-top">
-            <div class="d-flex align-items-center w-100">
-                <div class="me-3">
-                    <button type="button" class="btn btn-light" (click)="voltarDashboard()">
-                        <i class="ph-arrow-left me-2"></i>
-                        Dashboard
-                    </button>
-                </div>
-
-                <div class="flex-grow-1">
-                    <seletor-servico 
-                        [services]="services"
-                        [versions]="builderVersions"
-                        [selectedVersion]="versaoSelecionada"
-                        [selectedServiceId]="selectedBuilderServiceId"
-                        [selectedVersionId]="selectedBuilderVersionId"
-                        [selectedFlowId]="selectedBuilderFlowId"
-                        (onServiceChange)="onBuilderServiceChanged($event)"
-                        (onVersionChange)="onBuilderVersionChanged($event)"
-                        (onFlowChange)="onBuilderFlowChanged($event)">
-                    </seletor-servico>
-                </div>
-
-                <div class="ms-3 d-flex gap-2">
-                    <button type="button" class="btn btn-outline-primary" [disabled]="validationLoading" (click)="validarFluxo()">
-                        <i class="ph-check-circle me-2"></i>
-                        Validar
-                    </button>
-                    <button type="button" class="btn btn-primary" [disabled]="saveDraftLoading" (click)="salvarRascunho()">
-                        <i class="ph-floppy-disk me-2"></i>
-                        Salvar Rascunho
-                    </button>
-                </div>
+<div class="builder-shell">
+    <section class="builder-surface">
+        <div class="builder-surface__tabs">
+            <button type="button" class="builder-tab">Detalhes do servico</button>
+            <button type="button" class="builder-tab is-active">Formulario</button>
+            <div class="builder-surface__actions">
+                <button type="button" class="btn btn-outline-primary btn-sm" [disabled]="validationLoading" (click)="validarFluxo()">
+                    <span *ngIf="validationLoading" class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+                    <i *ngIf="!validationLoading" class="ph ph-check-circle me-2"></i>
+                    Validar
+                </button>
+                <button type="button" class="btn btn-light btn-sm" [disabled]="saveDraftLoading" (click)="salvarRascunho()">
+                    <span *ngIf="saveDraftLoading" class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+                    <i *ngIf="!saveDraftLoading" class="ph ph-floppy-disk me-2"></i>
+                    Salvar
+                </button>
             </div>
         </div>
 
-        <!-- Área do Canvas -->
-        <div class="flex-grow-1 position-relative overflow-hidden bg-light">
-            <canvas-fluxo 
-                *ngIf="fluxoEmEdicao != null"
-                [nodes]="builderCanvasNodes"
-                [edges]="builderCanvasEdges"
-                (onNodesChange)="handleNodesChanged($event)"
-                (onSelectionChange)="handleCanvasSelectionChanged($event)">
-            </canvas-fluxo>
-
-            <div *ngIf="builderLoading" class="position-absolute top-50 start-50 translate-middle text-center">
-                <div class="spinner-border text-primary mb-2"></div>
-                <div class="text-muted">Carregando canvas...</div>
-            </div>
-
-            <div *ngIf="!builderLoading && fluxoEmEdicao == null" class="position-absolute top-50 start-50 translate-middle text-center">
-                <i class="ph-selection-all ph-3x text-muted mb-3"></i>
-                <h5 class="text-muted">Nenhum fluxo selecionado para edição</h5>
-                <p class="text-muted small">Escolha um serviço e versão na barra superior.</p>
-            </div>
+        <div class="builder-surface__filters">
+            <seletor-servico 
+                [services]="services"
+                [versions]="builderVersions"
+                [selectedVersion]="versaoSelecionada"
+                [selectedServiceId]="selectedBuilderServiceId"
+                [selectedVersionId]="selectedBuilderVersionId"
+                [selectedFlowId]="selectedBuilderFlowId"
+                (onServiceChange)="onBuilderServiceChanged($event)"
+                (onVersionChange)="onBuilderVersionChanged($event)"
+                (onFlowChange)="onBuilderFlowChanged($event)">
+            </seletor-servico>
         </div>
-    </div>
 
-    <!-- Inspector (Painel Lateral Direito) -->
-    <div class="col-auto bg-white border-start" style="width: 380px;">
-        <inspetor-no 
-            [no]="noSelecionadoBuilder"
-            [aresta]="arestaSelecionadaBuilder"
-            (onChange)="handleNodeDataChanged()"
-            (onRemove)="removerElementoSelecionado()">
-        </inspetor-no>
-    </div>
+        <div class="builder-workspace">
+            <div class="builder-workspace__canvas">
+                <canvas-fluxo 
+                    *ngIf="fluxoEmEdicao != null"
+                    [nodes]="builderCanvasNodes"
+                    [edges]="builderCanvasEdges"
+                    (onAddNode)="adicionarNo($event)"
+                    (onNodesChange)="handleNodesChanged($event)"
+                    (onEdgesChange)="handleEdgesChanged($event)"
+                    (onSelectionChange)="handleCanvasSelectionChanged($event)"
+                    (onNodeDoubleClick)="handleNodeDoubleClick($event)"
+                    (onEdgeDoubleClick)="handleEdgeDoubleClick($event)">
+                </canvas-fluxo>
+
+                <div *ngIf="builderLoading" class="builder-empty-state">
+                    <div class="spinner-border text-primary mb-3"></div>
+                    <div class="builder-empty-state__title">Carregando editor</div>
+                    <div class="builder-empty-state__text">Preparando o fluxo e as configuracoes da versao selecionada.</div>
+                </div>
+
+                <div *ngIf="!builderLoading && fluxoEmEdicao == null" class="builder-empty-state">
+                    <i class="ph ph-selection-all builder-empty-state__icon"></i>
+                    <div class="builder-empty-state__title">Nenhum fluxo selecionado</div>
+                    <div class="builder-empty-state__text">Escolha servico, versao e fluxo para abrir o editor visual.</div>
+                </div>
+            </div>
+
+            <div
+                *ngIf="temElementoSelecionado"
+                class="builder-workspace__backdrop"
+                (click)="fecharPainelLateral()"></div>
+
+            <aside *ngIf="temElementoSelecionado" class="builder-workspace__inspector">
+                <div class="builder-workspace__inspector-header">
+                    <div>
+                        <div class="builder-workspace__inspector-eyebrow">Painel lateral</div>
+                        <h6 class="builder-workspace__inspector-title">Propriedades</h6>
+                    </div>
+                    <button type="button" class="builder-workspace__inspector-close" (click)="fecharPainelLateral()">
+                        <i class="ph ph-x"></i>
+                    </button>
+                </div>
+                <inspetor-no 
+                    [no]="noSelecionadoBuilder"
+                    [aresta]="arestaSelecionadaBuilder"
+                    (onChange)="handleNodeDataChanged()"
+                    (onRemove)="removerElementoSelecionado()">
+                </inspetor-no>
+            </aside>
+        </div>
+    </section>
 </div>
