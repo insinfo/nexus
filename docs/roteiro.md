@@ -23,9 +23,9 @@ O Nexus é inspirado tanto no Colab, usado aqui como referência em `C:\MyDartPr
 Entre os sistemas que o Nexus pretende substituir estão:
 
 - SIGEP
-	Sistema de Gestão de Estágio, voltado principalmente para inscrição pública de candidatos a estágio na Prefeitura, com telas internas de classificação e exportação em XLSX para publicação em Diário Oficial.
+	Sistema de Gestão de Estágio, voltado principalmente para inscrição pública (pagina de cadastro de candidato publica sem login) de candidatos a estágio na Prefeitura, com telas internas (com login de funcionario) de classificação e exportação em XLSX para publicação em Diário Oficial.
 - SEQUAL
-	Sistema de inscrição de pessoas interessadas em cursos profissionalizantes oferecidos pelos centros de treinamento da Prefeitura. Possui tela pública para cadastro do cidadão e telas internas para liberação de formulários, classificação, matrícula, confirmação de comparecimento e emissão de certificados. Também possui tela pública para emissão posterior de certificados por CPF.
+	Sistema de inscrição de pessoas interessadas em cursos profissionalizantes (pagina de cadastro de candidato publica sem login) oferecidos pelos centros de treinamento da Prefeitura. Possui tela pública para cadastro do cidadão e telas internas para liberação de formulários, classificação, matrícula, confirmação de comparecimento e emissão de certificados. Também possui tela pública para emissão posterior de certificados por CPF.
 - Pré-matrícula escolar
 	Sistema utilizado para inscrição e organização de vagas escolares, com regras que variam a cada ciclo.
 - SALUS
